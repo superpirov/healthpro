@@ -28,7 +28,7 @@ import { ExercisePicker } from './ExercisePicker'
 import { relativeDay, locType } from './WorkoutsPage'
 import { useAppStore } from '@/store/appStore'
 import { useWorkoutById } from '@/hooks/useDerived'
-import { EXERCISES } from '@/data/exercises'
+import { useExercises } from '@/hooks/useExercises'
 import { exerciseVolume } from '@/lib/calculations'
 import { fmt, fmtCompact, fmtDuration } from '@/lib/utils'
 import { t, fdate, loc, locExercise, locWorkoutName } from '@/lib/i18n'
@@ -44,6 +44,7 @@ export function WorkoutDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const workout = useWorkoutById(id)
+  const allExercises = useExercises()
   const updateWorkout = useAppStore((s) => s.updateWorkout)
   const deleteWorkout = useAppStore((s) => s.deleteWorkout)
 
@@ -105,7 +106,7 @@ export function WorkoutDetailPage() {
   }
 
   function addFromLibrary(exId: string) {
-    const def = EXERCISES.find((e) => e.id === exId)
+    const def = allExercises.find((e) => e.id === exId)
     if (!def) return
     setDraft((prev) => [
       ...prev,

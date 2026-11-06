@@ -61,9 +61,9 @@ export function TimerPage() {
 
   // Sync the document title with the countdown
   useEffect(() => {
-    const base = 'PULSE'
+    const base = 'FORMA'
     if (phase === 'prepare' || phase === 'work' || phase === 'rest' || phase === 'rest-between') {
-      document.title = `${fmtClock(remainingSec)} · ${PHASE_META[phase].label} — PULSE`
+      document.title = `${fmtClock(remainingSec)} · ${PHASE_META[phase].label} — FORMA`
     } else {
       document.title = base
     }

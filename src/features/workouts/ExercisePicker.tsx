@@ -11,7 +11,8 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Segmented } from '@/components/ui/segmented'
-import { EXERCISES, MUSCLE_GROUPS } from '@/data/exercises'
+import { MUSCLE_GROUPS } from '@/data/exercises'
+import { useExercises } from '@/hooks/useExercises'
 import { t, loc, matchExercise, locExercise } from '@/lib/i18n'
 import type { MuscleGroup } from '@/types'
 
@@ -36,19 +37,21 @@ export function ExercisePicker({
     }
   }, [open])
 
+  const exercises = useExercises()
+
   const list = useMemo(() => {
     const needle = q.trim().toLowerCase()
-    return EXERCISES.filter(
-      (e) => (filter === 'All' || e.muscleGroup === filter) && matchExercise(needle, e.name, e.muscleGroup, e.equipment),
+    return exercises.filter(
+      (e) => (filter === 'All' || e.muscleGroup === filter) && matchExercise(needle, locExercise(e.id, e.name), e.muscleGroup, e.equipment),
     )
-  }, [q, filter])
+  }, [q, filter, exercises])
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-h-[85dvh] max-w-lg">
         <DialogHeader>
           <DialogTitle>{t('picker_add_exercise')}</DialogTitle>
-          <DialogDescription>{t('picker_in_library', { n: EXERCISES.length })}</DialogDescription>
+          <DialogDescription>{t('picker_in_library', { n: exercises.length })}</DialogDescription>
         </DialogHeader>
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />

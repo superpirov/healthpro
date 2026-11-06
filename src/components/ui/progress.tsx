@@ -6,7 +6,7 @@ interface ProgressProps extends React.ComponentProps<'div'> {
   indicatorClassName?: string
 }
 
-/** Lightweight hairline progress bar styled for PULSE */
+/** Lightweight hairline progress bar styled for FORMA */
 function Progress({
   value,
   className,

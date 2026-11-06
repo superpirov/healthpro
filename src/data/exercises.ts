@@ -333,3 +333,13 @@ export const MUSCLE_GROUPS = [
   'Core',
   'Cardio',
 ] as const
+
+export const EQUIPMENT_TYPES = [
+  'Barbell',
+  'Dumbbell',
+  'Machine',
+  'Cable',
+  'Bodyweight',
+  'Kettlebell',
+  'Cardio Machine',
+] as const

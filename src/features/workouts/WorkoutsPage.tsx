@@ -81,7 +81,7 @@ export function WorkoutsPage() {
                 <BookOpen />
               </Link>
             </Button>
-            <Button asChild variant="energy">
+            <Button asChild variant="energy" className="w-full sm:w-auto">
               <Link to="/workouts/active">
                 <Play /> {t('new_workout')}
               </Link>
@@ -90,17 +90,20 @@ export function WorkoutsPage() {
         }
       />
 
-      <div className="mb-4 flex justify-end">
-        <Segmented
-          size="sm"
-          value={period}
-          onChange={setPeriod}
-          options={[
-            { value: '7', label: t('days_7') },
-            { value: '30', label: t('days_30') },
-            { value: '90', label: t('days_90') },
-          ]}
-        />
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:justify-end">
+        <div className="w-full sm:w-auto">
+          <Segmented
+            size="sm"
+            value={period}
+            onChange={setPeriod}
+            options={[
+              { value: '7', label: t('days_7') },
+              { value: '30', label: t('days_30') },
+              { value: '90', label: t('days_90') },
+            ]}
+            className="w-full"
+          />
+        </div>
       </div>
 
       {/* Stats */}

@@ -13,7 +13,7 @@ import {
   YAxis,
 } from 'recharts'
 
-/* Shared PULSE chart styling — hairline grid, muted axes.
+/* Shared FORMA chart styling — hairline grid, muted axes.
    Colors come from CSS variables so charts adapt to dark/light themes. */
 
 const AXIS = {

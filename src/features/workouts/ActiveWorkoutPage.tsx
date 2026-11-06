@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/select'
 import { ExercisePicker } from './ExercisePicker'
 import { EXERCISES } from '@/data/exercises'
+import { useExercises } from '@/hooks/useExercises'
 import { useAppStore } from '@/store/appStore'
 import { beep } from '@/hooks/useIntervalTimer'
 import { todayISO } from '@/data/demoData'
@@ -67,6 +68,7 @@ interface RestState {
 export function ActiveWorkoutPage() {
   const navigate = useNavigate()
   const addWorkout = useAppStore((s) => s.addWorkout)
+  const allExercises = useExercises()
 
   /* ── setup phase vs live phase ── */
   const [phase, setPhase] = useState<'setup' | 'live'>('setup')
@@ -140,7 +142,7 @@ export function ActiveWorkoutPage() {
 
   /* ── exercise ops ── */
   function addExerciseFromLibrary(exId: string) {
-    const def = EXERCISES.find((e) => e.id === exId)
+    const def = allExercises.find((e) => e.id === exId)
     if (!def) return
     const ex: DraftExercise = {
       id: nid('we'),

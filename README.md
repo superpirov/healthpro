@@ -1,4 +1,4 @@
-# PULSE — Fitness & Nutrition Platform
+# FORMA — Fitness & Nutrition Platform
 
 Мобильно-приоритетный фитнес-продукт: дневник тренировок (GymLog), учёт питания (MacroLog) и интервальные таймеры (IntervalPro). Frontend MVP на демо-данных, всё сохраняется в localStorage.
 

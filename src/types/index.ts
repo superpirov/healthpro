@@ -24,6 +24,7 @@ export interface Exercise {
   muscleGroup: MuscleGroup
   equipment: Equipment
   description: string
+  custom?: boolean
 }
 
 export interface WorkoutSet {

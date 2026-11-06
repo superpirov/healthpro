@@ -23,7 +23,7 @@ export function PageHeader({ title, description, actions, className, ...props }:
           <p className="mt-1 text-sm text-muted-foreground sm:text-[15px]">{description}</p>
         )}
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {actions && <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">{actions}</div>}
     </div>
   )
 }

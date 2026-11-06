@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
+  Exercise,
   FoodItem,
   LoggedFood,
   MealType,
@@ -21,6 +22,7 @@ interface AppState {
   workouts: Workout[]
   nutrition: NutritionDay[]
   customFoods: FoodItem[]
+  customExercises: Exercise[]
   favoriteFoodIds: string[]
   records: PersonalRecord[]
   theme: 'dark' | 'light'
@@ -37,6 +39,7 @@ interface AppState {
   updateFoodGrams: (date: string, meal: MealType, itemId: string, grams: number) => void
   setGoals: (goals: NutritionGoals) => void
   addCustomFood: (food: FoodItem) => void
+  addCustomExercise: (ex: Exercise) => void
   toggleFavoriteFood: (foodId: string) => void
 
   /* misc */
@@ -50,6 +53,7 @@ function seedState() {
     workouts: buildDemoWorkouts(),
     nutrition: buildDemoNutrition(),
     customFoods: [] as FoodItem[],
+    customExercises: [] as Exercise[],
     favoriteFoodIds: ['chicken-breast', 'rice-white', 'eggs', 'banana', 'oatmeal', 'greek-yogurt'],
     records: buildDemoRecords(),
     theme: 'dark' as const,
@@ -137,6 +141,9 @@ export const useAppStore = create<AppState>()(
       addCustomFood: (food) =>
         set((s) => ({ customFoods: [...s.customFoods, food] })),
 
+      addCustomExercise: (ex) =>
+        set((s) => ({ customExercises: [...s.customExercises, ex] })),
+
       toggleFavoriteFood: (foodId) =>
         set((s) => ({
           favoriteFoodIds: s.favoriteFoodIds.includes(foodId)
@@ -149,9 +156,10 @@ export const useAppStore = create<AppState>()(
       resetDemoData: () => set({ ...seedState() }),
     }),
     {
-      name: 'pulse-app-v1',
-      version: 2,
+      name: 'forma-app-v1',
+      version: 3,
       // v2: demo data is now fully Russian — old English demo seeds are reseeded
+      // v3: renamed storage key; custom exercises library added
       migrate: (state, from) => (from < 2 ? seedState() : state),
     }
   )

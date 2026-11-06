@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Dumbbell, Search } from 'lucide-react'
+import { ArrowLeft, Dumbbell, Plus, Search } from 'lucide-react'
 import { PageHeader, EmptyState } from '@/components/ui/page-header'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Segmented } from '@/components/ui/segmented'
-import { EXERCISES, MUSCLE_GROUPS } from '@/data/exercises'
+import { MUSCLE_GROUPS } from '@/data/exercises'
+import { useExercises } from '@/hooks/useExercises'
+import { CreateExerciseDialog } from './CreateExerciseDialog'
 import { t, loc, matchExercise, locExercise, locExerciseDesc } from '@/lib/i18n'
 import type { MuscleGroup } from '@/types'
 
@@ -26,14 +28,16 @@ const GROUP_COLOR: Record<MuscleGroup, string> = {
 export function ExerciseLibraryPage() {
   const [q, setQ] = useState('')
   const [filter, setFilter] = useState<Filter>('All')
+  const [createOpen, setCreateOpen] = useState(false)
+  const exercises = useExercises()
 
   const list = useMemo(() => {
     const needle = q.trim().toLowerCase()
-    return EXERCISES.filter(
+    return exercises.filter(
       (e) =>
-        (filter === 'All' || e.muscleGroup === filter) && matchExercise(needle, e.name, e.muscleGroup, e.equipment)
+        (filter === 'All' || e.muscleGroup === filter) && matchExercise(needle, locExercise(e.id, e.name), e.muscleGroup, e.equipment)
     )
-  }, [q, filter])
+  }, [q, filter, exercises])
 
   return (
     <div className="animate-page-in">
@@ -45,7 +49,12 @@ export function ExerciseLibraryPage() {
 
       <PageHeader
         title={t('lib_title')}
-        description={t('lib_desc', { n: EXERCISES.length })}
+        description={t('lib_desc', { n: exercises.length })}
+        actions={
+          <Button variant="energy" onClick={() => setCreateOpen(true)}>
+            <Plus /> <span className="hidden sm:inline">{t('ce_btn')}</span>
+          </Button>
+        }
       />
 
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -82,7 +91,10 @@ export function ExerciseLibraryPage() {
           {list.map((e) => (
             <Card key={e.id} className="flex flex-col p-4 transition-colors hover:border-white/15">
               <div className="flex items-start justify-between gap-2">
-                <p className="font-semibold leading-snug">{locExercise(e.id, e.name)}</p>
+                <p className="flex min-w-0 items-center gap-1.5 font-semibold leading-snug">
+                  <span className="truncate">{locExercise(e.id, e.name)}</span>
+                  {e.custom && <Badge variant="nutri" className="shrink-0">{t('custom_ex_badge')}</Badge>}
+                </p>
                 <Badge className={`shrink-0 ${GROUP_COLOR[e.muscleGroup]} border-transparent`}>
                   {loc('mg', e.muscleGroup)}
                 </Badge>
@@ -97,6 +109,8 @@ export function ExerciseLibraryPage() {
           ))}
         </div>
       )}
+
+      <CreateExerciseDialog open={createOpen} onOpenChange={setCreateOpen} />
     </div>
   )
 }

@@ -24,7 +24,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* PULSE brand palette */
+  /* FORMA brand palette */
   --color-energy: var(--energy);
   --color-energy-dim: var(--energy-dim);
   --color-nutri: var(--nutri);
@@ -47,7 +47,7 @@
 :root {
   --radius: 0.875rem;
 
-  /* PULSE — dark is the primary theme; light values kept tasteful */
+  /* FORMA — dark is the primary theme; light values kept tasteful */
   --background: #0b0d0c;
   --foreground: #f4f7f4;
   --card: #141816;

@@ -28,7 +28,7 @@ export function Sidebar() {
             <Zap className="size-5" strokeWidth={2.5} />
           </div>
           <div>
-          <p className="text-base font-bold tracking-tight leading-none">PULSE</p>
+          <p className="text-base font-bold tracking-tight leading-none">FORMA</p>
           <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
             {t('fitness_os')}
           </p>

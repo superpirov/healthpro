@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { createHashRouter, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { DashboardPage } from '@/features/dashboard/DashboardPage'
 import { WorkoutsPage } from '@/features/workouts/WorkoutsPage'
@@ -10,7 +10,9 @@ import { NutritionPage } from '@/features/nutrition/NutritionPage'
 import { TimerPage } from '@/features/timer/TimerPage'
 import { ProgressPage } from '@/features/progress/ProgressPage'
 
-export const router = createBrowserRouter([
+// HashRouter: GitHub Pages не отдаёт index.html для /healthpro/workouts,
+// поэтому маршруты живут в хэше (#/workouts) и работают при прямом открытии
+export const router = createHashRouter([
   {
     path: '/',
     element: <AppLayout />,

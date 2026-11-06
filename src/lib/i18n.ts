@@ -69,6 +69,7 @@ const ru: Record<string, string> = {
   g_unit: 'г',
   kg_unit: 'кг',
   kcal_unit: 'ккал',
+  h_unit: 'ч',
   min_unit: 'мин',
   sec_unit: 'с',
 
@@ -557,7 +558,7 @@ export function t(key: string, params?: Record<string, string | number>): string
 
 /** Русская метка по данным с английскими значениями: 'Cardio Machine' → eq_CardioMachine */
 export function loc(keyPrefix: 'mg' | 'eq' | 'cat' | 'type' | 'meal', value: string): string {
-  const clean = value.replace(/[^A-Za-z]/g, '')
+  const clean = value.replace(/[^A-Za-z]/g, '').replace(/([a-z])([A-Z])/g, '$1$2')
   if (keyPrefix === 'meal') return t(`meal_${value}`)
   const k = `${keyPrefix}_${clean}`
   const s = t(k)

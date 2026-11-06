@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n'
 import {
   Area,
   AreaChart,
@@ -55,7 +56,7 @@ function ChartTip({
       <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
       {payload.map((p, i) => (
         <p key={i} className="mt-0.5 text-sm font-semibold tabular" style={{ color: p.color }}>
-          {typeof p.value === 'number' ? Math.round(p.value).toLocaleString('en-US') : p.value}
+          {typeof p.value === 'number' ? Math.round(p.value).toLocaleString('ru-RU') : p.value}
           {unit && ` ${unit}`}
           {p.name && p.name !== String(p.dataKey) && (
             <span className="ml-1.5 text-[11px] font-normal text-muted-foreground">{p.name}</span>
@@ -80,7 +81,7 @@ export function VolumeChart({ data, height = 220 }: { data: VolumePoint[]; heigh
         <XAxis dataKey="label" {...AXIS} interval="preserveStartEnd" minTickGap={18} />
         <YAxis {...AXIS} width={48} />
         <Tooltip content={<ChartTip unit="kg" />} cursor={BAR_CURSOR} />
-        <Bar dataKey="volume" name="Volume" fill="var(--energy)" radius={[5, 5, 2, 2]} maxBarSize={26} />
+        <Bar dataKey="volume" name={t('chart_volume')} fill="var(--energy)" radius={[5, 5, 2, 2]} maxBarSize={26} />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -109,7 +110,7 @@ export function ActivityChart({ data, height = 220 }: { data: MinutesPoint[]; he
         <Area
           type="monotone"
           dataKey="minutes"
-          name="Active time"
+          name={t('kpi_active_time')}
           stroke="var(--energy)"
           strokeWidth={2.5}
           fill="url(#gEnergy)"
@@ -144,7 +145,7 @@ export function CaloriesChart({ data, height = 220 }: { data: CaloriesPoint[]; h
         <Area
           type="monotone"
           dataKey="calories"
-          name="Calories"
+          name={t('kpi_calories')}
           stroke="var(--nutri)"
           strokeWidth={2.5}
           fill="url(#gNutri)"
@@ -172,7 +173,7 @@ export function ProteinChart({ data, height = 220 }: { data: ProteinPoint[]; hei
         <Line
           type="monotone"
           dataKey="protein"
-          name="Protein"
+          name={t('kpi_protein')}
           stroke="var(--nutri)"
           strokeWidth={2.5}
           dot={false}
@@ -196,7 +197,7 @@ export function FrequencyChart({ data, height = 220 }: { data: FrequencyPoint[];
         <XAxis dataKey="label" {...AXIS} interval="preserveStartEnd" minTickGap={18} />
         <YAxis {...AXIS} width={48} allowDecimals={false} />
         <Tooltip content={<ChartTip />} cursor={BAR_CURSOR} />
-        <Bar dataKey="workouts" name="Workouts" fill="var(--energy)" radius={[5, 5, 2, 2]} maxBarSize={22} />
+        <Bar dataKey="workouts" name={t('workouts')} fill="var(--energy)" radius={[5, 5, 2, 2]} maxBarSize={22} />
       </BarChart>
     </ResponsiveContainer>
   )

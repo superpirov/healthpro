@@ -39,7 +39,7 @@ import { useAppStore } from '@/store/appStore'
 import { beep } from '@/hooks/useIntervalTimer'
 import { todayISO } from '@/data/demoData'
 import { fmt, fmtClock } from '@/lib/utils'
-import { t, fdate, loc, locExercise, locWorkoutName } from '@/lib/i18n'
+import { t, fdate, loc, locExercise } from '@/lib/i18n'
 import type { WorkoutExercise, WorkoutSet, WorkoutType } from '@/types'
 
 const WORKOUT_TYPES: WorkoutType[] = [
@@ -299,7 +299,7 @@ export function ActiveWorkoutPage() {
       <div className="sticky top-0 z-30 -mx-4 mb-4 border-b border-line bg-background/85 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold sm:text-base">{locWorkoutName(name)}</p>
+            <p className="truncate text-sm font-bold sm:text-base">{name}</p>
             <p className="text-xs text-muted-foreground tabular">
               {fmtClock(elapsedSec)} {t('elapsed')} · {t('sets_progress', { done: doneSets, total: totalSets })} · {fmt(volume)} {t('kg_unit')}
             </p>
@@ -392,7 +392,7 @@ export function ActiveWorkoutPage() {
                   {idx + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold">{locWorkoutName(ex.name)}</p>
+                  <p className="truncate font-semibold">{ex.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {t('muscle_group_of', {
                       group: loc('mg', ex.muscleGroup),

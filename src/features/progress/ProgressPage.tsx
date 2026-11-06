@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { format } from 'date-fns'
 import {
   Activity,
   CalendarCheck,
@@ -30,14 +29,15 @@ import {
 } from '@/hooks/useDerived'
 import { workoutVolume } from '@/lib/calculations'
 import { fmt, fmtCompact, fmtDuration } from '@/lib/utils'
+import { t, fdate, locRecordName } from '@/lib/i18n'
 
 type Period = '7' | '30' | '90'
 
 const PR_ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
-  'Bench Press': Dumbbell,
-  Squat: Activity,
-  Deadlift: Flame,
-  'Shoulder Press': Clock,
+  'Жим штанги лёжа': Dumbbell,
+  'Приседания со штангой': Activity,
+  'Становая тяга': Flame,
+  'Жим штанги стоя': Clock,
 }
 
 export function ProgressPage() {
@@ -60,16 +60,16 @@ export function ProgressPage() {
   return (
     <div className="animate-page-in">
       <PageHeader
-        title="Progress"
-        description="Everything you've trained and eaten, visualized."
+        title={t('progress_title')}
+        description={t('progress_desc')}
         actions={
           <Segmented
             value={period}
             onChange={setPeriod}
             options={[
-              { value: '7', label: '7d' },
-              { value: '30', label: '30d' },
-              { value: '90', label: '90d' },
+              { value: '7', label: t('prd_7') },
+              { value: '30', label: t('prd_30') },
+              { value: '90', label: t('prd_90') },
             ]}
           />
         }
@@ -78,65 +78,65 @@ export function ProgressPage() {
       {/* KPI grid */}
       <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard
-          label="Workouts"
+          label={t('kpi_workouts')}
           accent="energy"
           icon={Dumbbell}
           value={inRange.length}
-          sub={`in ${days} days`}
+          sub={t('in_days', { days })}
         />
         <StatCard
-          label="Total volume"
+          label={t('stat_volume')}
           accent="energy"
           icon={Flame}
           value={fmtCompact(totalVolume)}
-          sub="kg lifted"
+          sub={t('kg_lifted')}
         />
         <StatCard
-          label="Time trained"
+          label={t('time_trained')}
           accent="ignite"
           icon={Clock}
           value={fmtDuration(totalTime)}
-          sub={`${inRange.length ? fmt(Math.round(totalTime / inRange.length)) : 0} min avg session`}
+          sub={`${inRange.length ? fmt(Math.round(totalTime / inRange.length)) : 0} ${t('min_avg')}`}
         />
         <StatCard
-          label="Avg calories"
+          label={t('avg_calories')}
           accent="nutri"
           icon={Utensils}
           value={fmt(avg.calories)}
-          sub="kcal / day"
+          sub={t('kcal_per_day')}
         />
         <StatCard
-          label="Avg protein"
+          label={t('avg_protein')}
           accent="nutri"
           icon={Egg}
-          value={`${fmt(avg.protein)} g`}
-          sub="per day"
+          value={`${fmt(avg.protein)} ${t('g_unit')}`}
+          sub={t('per_day')}
         />
         <StatCard
-          label="This week"
+          label={t('stat_this_week')}
           accent="energy"
           icon={CalendarCheck}
           value={weekWorkouts}
-          sub="workouts"
+          sub={t('stat_workouts_sub')}
         />
       </section>
 
       {/* Charts */}
       <section className="mt-4 grid gap-4 lg:grid-cols-2">
-        <ChartCard title="Training volume" accent="energy">
+        <ChartCard title={t('chart_volume')} accent="energy">
           <VolumeChart data={chartData.map((d) => ({ label: d.label, volume: d.volume }))} height={230} />
         </ChartCard>
-        <ChartCard title="Workout frequency" accent="energy">
+        <ChartCard title={t('chart_frequency')} accent="energy">
           <FrequencyChart data={chartData.map((d) => ({ label: d.label, workouts: d.workouts }))} height={230} />
         </ChartCard>
-        <ChartCard title="Calories consumed" accent="nutri">
+        <ChartCard title={t('chart_calories')} accent="nutri">
           <CaloriesChart data={chartData.map((d) => ({ label: d.label, calories: d.calories }))} height={230} />
         </ChartCard>
-        <ChartCard title="Protein intake" accent="nutri">
+        <ChartCard title={t('chart_protein')} accent="nutri">
           <ProteinChart data={chartData.map((d) => ({ label: d.label, protein: d.protein }))} height={230} />
         </ChartCard>
         <div className="lg:col-span-2">
-          <ChartCard title="Weekly activity" accent="ignite">
+          <ChartCard title={t('chart_activity')} accent="ignite">
             <ActivityChart data={chartData.map((d) => ({ label: d.label, minutes: d.minutes }))} height={210} />
           </ChartCard>
         </div>
@@ -147,14 +147,14 @@ export function ProgressPage() {
         <div className="mb-3 flex items-center gap-2">
           <Trophy className="size-4 text-primary" />
           <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            Personal records
+            {t('personal_records')}
           </h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {records.map((r) => {
-            const Icon = PR_ICONS[r.exerciseName] ?? Dumbbell
+            const Icon = PR_ICONS[locRecordName(r.exerciseName)] ?? Dumbbell
             return (
-              <Card key={r.exerciseName} className="relative overflow-hidden p-5">
+              <Card key={locRecordName(r.exerciseName)} className="relative overflow-hidden p-5">
                 <div
                   className="pointer-events-none absolute -right-8 -top-8 size-28 rounded-full opacity-[0.07]"
                   style={{ background: 'radial-gradient(circle, #B7F36B 0%, transparent 70%)' }}
@@ -164,28 +164,28 @@ export function ProgressPage() {
                     <Icon className="size-4.5" strokeWidth={2.2} />
                   </span>
                   <Badge variant="secondary">
-                    {format(new Date(r.date + 'T12:00'), 'MMM d')}
+                    {fdate(new Date(r.date + 'T12:00'), 'd MMM')}
                   </Badge>
                 </div>
                 <p className="mt-4 text-3xl font-bold tracking-tight tabular">
                   {r.weightKg}
-                  <span className="ml-1 text-base font-semibold text-muted-foreground">kg</span>
+                  <span className="ml-1 text-base font-semibold text-muted-foreground">{t('kg_unit')}</span>
                 </p>
-                <p className="mt-1 text-sm font-semibold">{r.exerciseName}</p>
-                <p className="text-xs text-muted-foreground">Best set × {r.reps} reps</p>
+                <p className="mt-1 text-sm font-semibold">{locRecordName(r.exerciseName)}</p>
+                <p className="text-xs text-muted-foreground">{t('best_set_reps', { reps: r.reps })}</p>
               </Card>
             )
           })}
           {records.length === 0 && (
             <Card className="col-span-full p-8 text-center text-sm text-muted-foreground">
-              Log heavy sets to unlock personal records.
+              {t('records_empty')}
             </Card>
           )}
         </div>
       </section>
 
       <p className="mt-8 text-center text-[11px] text-muted-foreground/70">
-        {workoutsAll.length} sessions in history · demo data persists locally
+        {t('sessions_in_history', { n: workoutsAll.length })}
       </p>
     </div>
   )

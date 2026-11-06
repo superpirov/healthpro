@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Moon, Sun } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { t } from '@/lib/i18n'
 import { useAppStore } from '@/store/appStore'
 
 /** Dark is the primary theme; this toggle switches to a light variant */
@@ -20,7 +21,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       variant="outline"
       className={className}
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+      aria-label={theme === 'dark' ? t('switch_to_light') : t('switch_to_dark')}
     >
       {theme === 'dark' ? <Sun /> : <Moon />}
     </Button>

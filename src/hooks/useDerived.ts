@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { parseISO, startOfWeek, isWithinInterval, format, subDays } from 'date-fns'
 import { useAppStore } from '@/store/appStore'
 import { dayMacros, workoutVolume, type Macros } from '@/lib/calculations'
+import { fdate } from '@/lib/i18n'
 import { todayISO } from '@/data/demoData'
 import type { NutritionDay, Workout } from '@/types'
 
@@ -71,7 +72,7 @@ export function useDailyActivity(days: number): DayActivity[] {
       const m = dayMacros(nutrition.find((x) => x.date === iso))
       out.push({
         date: iso,
-        label: format(d, days > 10 ? 'd MMM' : 'EEE'),
+        label: fdate(d, days > 10 ? 'd MMM' : 'EEE'),
         workouts: dayWorkouts.length,
         volume: dayWorkouts.reduce((s, w) => s + workoutVolume(w), 0),
         minutes: dayWorkouts.reduce((s, w) => s + w.durationMin, 0),

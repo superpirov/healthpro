@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { format } from 'date-fns'
 import {
   Check,
   ChevronDown,
@@ -40,12 +39,20 @@ import { useAppStore } from '@/store/appStore'
 import { beep } from '@/hooks/useIntervalTimer'
 import { todayISO } from '@/data/demoData'
 import { fmt, fmtClock } from '@/lib/utils'
+import { t, fdate, loc, locExercise, locWorkoutName } from '@/lib/i18n'
 import type { WorkoutExercise, WorkoutSet, WorkoutType } from '@/types'
 
 const WORKOUT_TYPES: WorkoutType[] = [
   'Strength', 'Hypertrophy', 'Push', 'Pull', 'Legs', 'Upper', 'Lower',
   'Full Body', 'Cardio', 'HIIT', 'Core',
 ]
+
+/** Локализация английского типа */
+function locType(type: string): string {
+  const key = `type_${type.replace(/\s+/g, '').toLowerCase()}`
+  const s = t(key)
+  return s === key ? type : s
+}
 
 let uid = 0
 const nid = (p: string) => `${p}-${Date.now()}-${++uid}`
@@ -121,18 +128,14 @@ export function ActiveWorkoutPage() {
   /* ── validation & start ── */
   function handleStart() {
     if (!name.trim()) {
-      setErrors({ name: 'Give your workout a name' })
+      setErrors({ name: t('error_need_name') })
       return
     }
     setErrors({})
     setPhase('live')
     setStartedAt(Date.now())
     // sensible starter template based on type
-    const starter = starterFor(type)
-    if (starter.length) {
-      setExercises(starter)
-      setExpanded({ [starter[0].id]: true })
-    }
+    setExercises(starterFor(type))
   }
 
   /* ── exercise ops ── */
@@ -142,7 +145,7 @@ export function ActiveWorkoutPage() {
     const ex: DraftExercise = {
       id: nid('we'),
       exerciseId: def.id,
-      name: def.name,
+      name: locExercise(def.id, def.name),
       muscleGroup: def.muscleGroup,
       sets: [
         { id: nid('ws'), weight: defaultWeightFor(def.muscleGroup), reps: 10, done: false },
@@ -228,15 +231,15 @@ export function ActiveWorkoutPage() {
   if (phase === 'setup') {
     return (
       <div className="animate-page-in mx-auto max-w-xl">
-        <PageHeader title="New workout" description="Set it up, then train." />
+        <PageHeader title={t('active_setup_title')} description={t('active_setup_desc')} />
         <Card className="p-5 sm:p-6">
           <div className="space-y-5">
             <div>
-              <Label htmlFor="w-name">Workout name</Label>
+              <Label htmlFor="w-name">{t('field_workout_name')}</Label>
               <Input
                 id="w-name"
                 className="mt-1.5"
-                placeholder="e.g. Push Day"
+                placeholder={t('workout_name_placeholder')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 aria-invalid={!!errors.name}
@@ -246,7 +249,7 @@ export function ActiveWorkoutPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Type</Label>
+                <Label>{t('field_type')}</Label>
                 <Select value={type} onValueChange={(v) => setType(v as WorkoutType)}>
                   <SelectTrigger className="mt-1.5 w-full">
                     <SelectValue />
@@ -254,14 +257,14 @@ export function ActiveWorkoutPage() {
                   <SelectContent>
                     {WORKOUT_TYPES.map((t) => (
                       <SelectItem key={t} value={t}>
-                        {t}
+                        {locType(t)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="w-date">Date</Label>
+                <Label htmlFor="w-date">{t('field_date')}</Label>
                 <Input
                   id="w-date"
                   type="date"
@@ -273,15 +276,14 @@ export function ActiveWorkoutPage() {
               </div>
             </div>
             <div className="rounded-xl border border-line bg-surface-2/50 p-3.5 text-xs leading-relaxed text-muted-foreground">
-              We'll pre-load exercises typical for a <span className="font-semibold text-foreground">{type}</span>{' '}
-              session. You can add, remove and edit everything during the workout.
+              {t('setup_note', { type: locType(type) })}
             </div>
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={() => navigate(-1)}>
-                <X /> Cancel
+                <X /> {t('cancel')}
               </Button>
               <Button variant="energy" className="flex-[2]" onClick={handleStart}>
-                Start workout
+                {t('btn_start_workout')}
               </Button>
             </div>
           </div>
@@ -297,9 +299,9 @@ export function ActiveWorkoutPage() {
       <div className="sticky top-0 z-30 -mx-4 mb-4 border-b border-line bg-background/85 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold sm:text-base">{name}</p>
+            <p className="truncate text-sm font-bold sm:text-base">{locWorkoutName(name)}</p>
             <p className="text-xs text-muted-foreground tabular">
-              {fmtClock(elapsedSec)} elapsed · {doneSets}/{totalSets} sets · {fmt(volume)} kg
+              {fmtClock(elapsedSec)} {t('elapsed')} · {t('sets_progress', { done: doneSets, total: totalSets })} · {fmt(volume)} {t('kg_unit')}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -307,12 +309,12 @@ export function ActiveWorkoutPage() {
               size="icon-sm"
               variant="ghost"
               onClick={() => setSoundOn((v) => !v)}
-              aria-label={soundOn ? 'Mute sounds' : 'Unmute sounds'}
+              aria-label={soundOn ? t('mute_sounds') : t('unmute_sounds')}
             >
               {soundOn ? <Timer /> : <TimerOff />}
             </Button>
             <Button size="sm" variant="outline" onClick={() => setConfirmDiscard(true)}>
-              Discard
+              {t('discard')}
             </Button>
             <Button
               size="sm"
@@ -320,7 +322,7 @@ export function ActiveWorkoutPage() {
               disabled={exercises.length === 0 || doneSets === 0}
               onClick={finishWorkout}
             >
-              <Check /> Finish
+              <Check /> {t('finish')}
             </Button>
           </div>
         </div>
@@ -348,17 +350,19 @@ export function ActiveWorkoutPage() {
                   </span>
                 </RingProgress>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold">Rest</p>
-                  <p className="text-xs text-muted-foreground">Next set in {Math.ceil(restLeftSec)}s</p>
+                  <p className="text-sm font-semibold">{t('rest')}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('next_set_in', { s: Math.ceil(restLeftSec) })}
+                  </p>
                 </div>
                 <div className="flex gap-1.5">
                   {[30, 15].map((s) => (
                     <Button key={s} size="sm" variant="outline" onClick={() => startRest(s)}>
-                      +{s}s
+                      +{s}{t('sec_unit')}
                     </Button>
                   ))}
                   <Button size="sm" variant="ghost" onClick={() => setRest(null)}>
-                    <SkipForward /> Skip
+                    <SkipForward /> {t('skip')}
                   </Button>
                 </div>
               </div>
@@ -371,9 +375,7 @@ export function ActiveWorkoutPage() {
       <div className="mx-auto max-w-3xl space-y-3">
         {exercises.length === 0 && (
           <Card className="p-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              No exercises yet. Add your first one to start logging sets.
-            </p>
+            <p className="text-sm text-muted-foreground">{t('no_exercises_live')}</p>
           </Card>
         )}
         {exercises.map((ex, idx) => {
@@ -390,9 +392,13 @@ export function ActiveWorkoutPage() {
                   {idx + 1}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold">{ex.name}</p>
+                  <p className="truncate font-semibold">{locWorkoutName(ex.name)}</p>
                   <p className="text-xs text-muted-foreground">
-                    {ex.muscleGroup} · {exDone}/{ex.sets.length} sets done
+                    {t('muscle_group_of', {
+                      group: loc('mg', ex.muscleGroup),
+                      done: exDone,
+                      total: ex.sets.length,
+                    })}
                   </p>
                 </div>
                 <ChevronDown
@@ -411,9 +417,9 @@ export function ActiveWorkoutPage() {
                     <div className="border-t border-line px-4 pb-4 pt-3">
                       <div className="grid grid-cols-[28px_1fr_1fr_auto_auto] items-center gap-2 px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         <span>✓</span>
-                        <span>Weight, kg</span>
-                        <span>Reps</span>
-                        <span>Rest</span>
+                        <span>{t('col_weight_kg')}</span>
+                        <span>{t('col_reps')}</span>
+                        <span>{t('col_rest')}</span>
                         <span />
                       </div>
                       {ex.sets.map((s, i) => (
@@ -424,7 +430,7 @@ export function ActiveWorkoutPage() {
                           <button
                             type="button"
                             onClick={() => toggleSetDone(ex.id, s)}
-                            aria-label={s.done ? `Mark set ${i + 1} not done` : `Mark set ${i + 1} done`}
+                            aria-label={s.done ? `${t('col_reps')} ${i + 1}` : `${t('col_reps')} ${i + 1}`}
                             className={`flex size-7 items-center justify-center rounded-lg border transition-all ${
                               s.done
                                 ? 'border-primary bg-primary text-primary-foreground glow-energy'
@@ -443,7 +449,7 @@ export function ActiveWorkoutPage() {
                               patchSet(ex.id, s.id, { weight: Math.max(0, Number(e.target.value) || 0) })
                             }
                             className="h-9 text-center tabular"
-                            aria-label={`Set ${i + 1} weight`}
+                            aria-label={`${t('col_weight_kg')} подход ${i + 1}`}
                           />
                           <Input
                             type="number"
@@ -454,13 +460,13 @@ export function ActiveWorkoutPage() {
                               patchSet(ex.id, s.id, { reps: Math.max(1, Number(e.target.value) || 1) })
                             }
                             className="h-9 text-center tabular"
-                            aria-label={`Set ${i + 1} reps`}
+                            aria-label={`${t('col_reps')} подход ${i + 1}`}
                           />
                           <Button
                             size="icon-sm"
                             variant="ghost"
                             onClick={() => startRest(90)}
-                            aria-label={`Start 90s rest after set ${i + 1}`}
+                            aria-label={`Начать отдых после подхода ${i + 1}`}
                           >
                             <Timer />
                           </Button>
@@ -468,7 +474,7 @@ export function ActiveWorkoutPage() {
                             size="icon-sm"
                             variant="ghost"
                             onClick={() => removeSet(ex.id, s.id)}
-                            aria-label={`Remove set ${i + 1}`}
+                            aria-label={`Удалить подход ${i + 1}`}
                             className="text-muted-foreground hover:text-destructive"
                           >
                             <Trash2 />
@@ -477,7 +483,7 @@ export function ActiveWorkoutPage() {
                       ))}
                       <div className="mt-3 flex items-center justify-between">
                         <Button size="sm" variant="outline" onClick={() => addSet(ex.id)}>
-                          <Plus /> Add set
+                          <Plus /> {t('add_set')}
                         </Button>
                         <Button
                           size="sm"
@@ -485,7 +491,7 @@ export function ActiveWorkoutPage() {
                           className="text-muted-foreground hover:text-destructive"
                           onClick={() => removeExercise(ex.id)}
                         >
-                          <Trash2 /> Remove exercise
+                          <Trash2 /> {t('remove_exercise')}
                         </Button>
                       </div>
                     </div>
@@ -497,11 +503,11 @@ export function ActiveWorkoutPage() {
         })}
 
         <Button variant="outline" className="w-full border-dashed py-6" onClick={() => setPickerFor('add')}>
-          <Plus /> Add exercise
+          <Plus /> {t('add_exercise')}
         </Button>
 
         <p className="pt-1 text-center text-[11px] text-muted-foreground/70">
-          Started at {format(new Date(startedAt), 'HH:mm')} · volume updates live
+          {t('started_at', { time: fdate(startedAt, 'HH:mm') })}
         </p>
       </div>
 
@@ -519,16 +525,16 @@ export function ActiveWorkoutPage() {
       <Dialog open={confirmDiscard} onOpenChange={setConfirmDiscard}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Discard this workout?</DialogTitle>
+            <DialogTitle>{t('dialog_discard_title')}</DialogTitle>
             <DialogDescription>
-              {doneSets > 0
-                ? `${doneSets} completed ${doneSets === 1 ? 'set' : 'sets'} will not be saved.`
-                : 'Nothing will be saved.'}
+              {doneSets === 0
+                ? t('dialog_discard_none')
+                : t('dialog_discard_many', { n: doneSets })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmDiscard(false)}>
-              Keep training
+              {t('keep_training')}
             </Button>
             <Button
               variant="destructive"
@@ -537,7 +543,7 @@ export function ActiveWorkoutPage() {
                 navigate('/workouts')
               }}
             >
-              <RotateCcw /> Discard
+              <RotateCcw /> {t('discard')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -560,7 +566,6 @@ function defaultWeightFor(group: string): number {
 }
 
 function starterFor(type: WorkoutType): DraftExercise[] {
-  // Quick templates so the user lands directly in a usable session
   const plans: Partial<Record<WorkoutType, string[]>> = {
     Push: ['bench-press', 'db-shoulder-press', 'triceps-pushdown'],
     Pull: ['deadlift', 'lat-pulldown', 'barbell-curl'],
@@ -578,7 +583,7 @@ function starterFor(type: WorkoutType): DraftExercise[] {
     return {
       id: nid('we'),
       exerciseId: def.id,
-      name: def.name,
+      name: locExercise(def.id, def.name),
       muscleGroup: def.muscleGroup,
       sets: Array.from({ length: 3 }, () => ({
         id: nid('ws'),

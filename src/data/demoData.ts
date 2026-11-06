@@ -12,6 +12,7 @@ import type {
 } from '@/types'
 import { EXERCISES } from './exercises'
 import { FOODS } from './foods'
+import { locExercise, locFood, locWorkoutName } from '@/lib/i18n'
 
 export const iso = (d: Date) => format(d, 'yyyy-MM-dd')
 export const todayISO = () => iso(new Date())
@@ -43,7 +44,7 @@ function mkExercise(
   return {
     id: `de-${++exSeq}`,
     exerciseId: def.id,
-    name: def.name,
+    name: locExercise(def.id, def.name),
     muscleGroup: def.muscleGroup,
     sets: sets.map(([w, r]) => mkSet(w, r)),
   }
@@ -61,7 +62,7 @@ interface WkTemplate {
 
 const wk = (t: WkTemplate, idx: number): Workout => ({
   id: `demo-w-${idx}`,
-  name: t.name,
+  name: locWorkoutName(t.name),
   type: t.type,
   date: daysAgoISO(t.daysAgo),
   durationMin: t.durationMin,
@@ -76,156 +77,20 @@ export function buildDemoWorkouts(): Workout[] {
     // ── 5 weeks ago
     {
       daysAgo: 33,
-      name: 'Push Day',
+      name: 'День толчка',
       type: 'Push',
-      durationMin: 52,
-      exercises: [
-        mkExercise('bench-press', [[55, 12], [60, 10], [60, 9]]),
-        mkExercise('db-shoulder-press', [[22, 12], [24, 10], [24, 10]]),
-        mkExercise('incline-db-press', [[20, 12], [22, 10]]),
-        mkExercise('triceps-pushdown', [[20, 14], [22.5, 12]]),
-      ],
-    },
-    {
-      daysAgo: 31,
-      name: 'Pull Day',
-      type: 'Pull',
-      durationMin: 58,
+      durationMin: 55,
       exercises: [
         mkExercise('deadlift', [[100, 8], [110, 6], [115, 5]]),
-        mkExercise('lat-pulldown', [[45, 12], [50, 10], [50, 10]]),
-        mkExercise('seated-cable-row', [[45, 12], [50, 10]]),
-        mkExercise('barbell-curl', [[25, 12], [27.5, 10]]),
-      ],
-    },
-    {
-      daysAgo: 29,
-      name: 'Leg Day',
-      type: 'Legs',
-      durationMin: 61,
-      exercises: [
-        mkExercise('squat', [[70, 10], [75, 8], [80, 8]]),
-        mkExercise('leg-press', [[120, 12], [140, 10]]),
-        mkExercise('romanian-deadlift', [[60, 10], [65, 10]]),
-        mkExercise('leg-extension', [[35, 14], [40, 12]]),
-        mkExercise('calf-raise', [[50, 15], [55, 15]]),
+        mkExercise('pull-up', [[0, 10], [0, 8]]),
+        mkExercise('db-row', [[30, 10], [32.5, 9]]),
+        mkExercise('face-pull', [[25, 14], [25, 12]]),
       ],
     },
     // ── 4 weeks ago
     {
-      daysAgo: 26,
-      name: 'Upper Power',
-      type: 'Strength',
-      durationMin: 55,
-      exercises: [
-        mkExercise('bench-press', [[57.5, 11], [62.5, 10], [62.5, 8]]),
-        mkExercise('barbell-row', [[50, 10], [55, 8], [55, 8]]),
-        mkExercise('shoulder-press', [[30, 10], [30, 8]]),
-        mkExercise('pull-up', [[0, 8], [0, 7]]),
-      ],
-    },
-    {
-      daysAgo: 24,
-      name: 'HIIT Circuit',
-      type: 'HIIT',
-      durationMin: 32,
-      exercises: [
-        mkExercise('burpee', [[0, 15], [0, 15], [0, 12]]),
-        mkExercise('jump-rope', [[0, 50], [0, 50]]),
-        mkExercise('rowing', [[0, 250], [0, 250]]),
-      ],
-    },
-    {
-      daysAgo: 22,
-      name: 'Leg Day',
-      type: 'Legs',
-      durationMin: 64,
-      exercises: [
-        mkExercise('squat', [[75, 10], [80, 8], [85, 7]]),
-        mkExercise('bulgarian-split-squat', [[16, 10], [18, 10]]),
-        mkExercise('romanian-deadlift', [[65, 10], [70, 9]]),
-        mkExercise('leg-curl', [[35, 12], [40, 10]]),
-      ],
-    },
-    // ── 3 weeks ago
-    {
-      daysAgo: 19,
-      name: 'Push Day',
-      type: 'Push',
-      durationMin: 56,
-      exercises: [
-        mkExercise('bench-press', [[60, 11], [65, 9], [65, 8]]),
-        mkExercise('incline-db-press', [[22, 11], [24, 10]]),
-        mkExercise('lateral-raise', [[8, 15], [9, 12], [9, 12]]),
-        mkExercise('skull-crusher', [[20, 12], [22.5, 10]]),
-      ],
-    },
-    {
-      daysAgo: 17,
-      name: 'Pull Day',
-      type: 'Pull',
-      durationMin: 60,
-      exercises: [
-        mkExercise('deadlift', [[110, 7], [120, 5], [125, 5]]),
-        mkExercise('pull-up', [[0, 9], [0, 8], [0, 6]]),
-        mkExercise('db-row', [[24, 10], [26, 10]]),
-        mkExercise('face-pull', [[20, 15], [22.5, 12]]),
-      ],
-    },
-    {
-      daysAgo: 15,
-      name: 'Core & Cardio',
-      type: 'Core',
-      durationMin: 42,
-      exercises: [
-        mkExercise('plank', [[0, 60], [0, 60]]),
-        mkExercise('hanging-leg-raise', [[0, 12], [0, 10], [0, 10]]),
-        mkExercise('cable-crunch', [[30, 14], [35, 12]]),
-        mkExercise('cycling', [[0, 600], [0, 600]]),
-      ],
-    },
-    // ── 2 weeks ago
-    {
-      daysAgo: 12,
-      name: 'Upper Power',
-      type: 'Strength',
-      durationMin: 58,
-      exercises: [
-        mkExercise('bench-press', [[62.5, 10], [67.5, 8], [70, 7]]),
-        mkExercise('barbell-row', [[55, 9], [60, 8], [60, 7]]),
-        mkExercise('arnold-press', [[16, 12], [18, 10]]),
-        mkExercise('hammer-curl', [[12, 12], [14, 10]]),
-      ],
-    },
-    {
-      daysAgo: 10,
-      name: 'Leg Day',
-      type: 'Legs',
-      durationMin: 66,
-      exercises: [
-        mkExercise('squat', [[80, 9], [85, 8], [90, 6]]),
-        mkExercise('leg-press', [[150, 11], [160, 10]]),
-        mkExercise('walking-lunge', [[18, 12], [18, 12]]),
-        mkExercise('leg-extension', [[42.5, 12], [45, 11]]),
-        mkExercise('calf-raise', [[60, 14], [60, 14]]),
-      ],
-    },
-    // ── last week
-    {
-      daysAgo: 7,
-      name: 'Push Day',
-      type: 'Push',
-      durationMin: 54,
-      exercises: [
-        mkExercise('bench-press', [[65, 10], [70, 8], [72.5, 7]]),
-        mkExercise('db-shoulder-press', [[26, 10], [26, 9]]),
-        mkExercise('cable-fly', [[15, 14], [17.5, 12]]),
-        mkExercise('triceps-pushdown', [[25, 12], [25, 11]]),
-      ],
-    },
-    {
-      daysAgo: 5,
-      name: 'Pull Day',
+      daysAgo: 31,
+      name: 'День тяги',
       type: 'Pull',
       durationMin: 62,
       exercises: [
@@ -235,10 +100,153 @@ export function buildDemoWorkouts(): Workout[] {
         mkExercise('preacher-curl', [[22.5, 11], [25, 10]]),
       ],
     },
-    // ── yesterday: the latest session
+    // ── 4 weeks ago
+    {
+      daysAgo: 29,
+      name: 'День ног',
+      type: 'Legs',
+      durationMin: 68,
+      exercises: [
+        mkExercise('squat', [[80, 10], [90, 8], [95, 6]]),
+        mkExercise('leg-press', [[120, 12], [140, 10], [140, 8]]),
+        mkExercise('romanian-deadlift', [[60, 10], [70, 8]]),
+        mkExercise('calf-raise', [[40, 15], [40, 12]]),
+      ],
+    },
+    // ── 3 weeks ago
+    {
+      daysAgo: 26,
+      name: 'Сила — верх',
+      type: 'Strength',
+      durationMin: 62,
+      exercises: [
+        mkExercise('bench-press', [[60, 12], [70, 10], [75, 8]]),
+        mkExercise('barbell-row', [[50, 10], [60, 8], [65, 6]]),
+        mkExercise('shoulder-press', [[30, 10], [35, 8]]),
+        mkExercise('pull-up', [[7.5, 8], [7.5, 6]]),
+      ],
+    },
+    // ── 3 weeks ago
+    {
+      daysAgo: 24,
+      name: 'ВИИТ-круговая',
+      type: 'HIIT',
+      durationMin: 25,
+      exercises: [
+        mkExercise('jump-rope', [[0, 50], [0, 45]]),
+        mkExercise('burpee', [[0, 10], [0, 8]]),
+        mkExercise('push-up', [[0, 15], [0, 12]]),
+        mkExercise('running', [[0, 60], [0, 55]]),
+      ],
+    },
+    // ── 3 weeks ago
+    {
+      daysAgo: 22,
+      name: 'День ног',
+      type: 'Legs',
+      durationMin: 65,
+      exercises: [
+        mkExercise('front-squat', [[60, 10], [70, 8], [75, 6]]),
+        mkExercise('leg-extension', [[50, 12], [55, 10]]),
+        mkExercise('leg-curl', [[45, 10], [50, 8]]),
+        mkExercise('walking-lunge', [[20, 20], [20, 16]]),
+      ],
+    },
+    // ── 2 weeks ago
+    {
+      daysAgo: 19,
+      name: 'День толчка',
+      type: 'Push',
+      durationMin: 58,
+      exercises: [
+        mkExercise('bench-press', [[65, 10], [72.5, 8], [77.5, 6]]),
+        mkExercise('incline-db-press', [[30, 10], [32.5, 8]]),
+        mkExercise('cable-fly', [[20, 12], [20, 10]]),
+        mkExercise('triceps-pushdown', [[25, 12], [27.5, 10]]),
+      ],
+    },
+    // ── 2 weeks ago
+    {
+      daysAgo: 17,
+      name: 'День тяги',
+      type: 'Pull',
+      durationMin: 55,
+      exercises: [
+        mkExercise('deadlift', [[120, 8], [135, 5], [140, 3]]),
+        mkExercise('lat-pulldown', [[55, 10], [57.5, 9]]),
+        mkExercise('seated-cable-row', [[57.5, 10], [57.5, 8]]),
+        mkExercise('barbell-curl', [[25, 10], [27.5, 8]]),
+      ],
+    },
+    // ── 2 weeks ago
+    {
+      daysAgo: 15,
+      name: 'Кор и кардио',
+      type: 'Core',
+      durationMin: 35,
+      exercises: [
+        mkExercise('plank', [[0, 45], [0, 60]]),
+        mkExercise('hanging-leg-raise', [[0, 12], [0, 10]]),
+        mkExercise('cable-crunch', [[30, 15], [30, 12]]),
+        mkExercise('running', [[0, 600], [0, 500]]),
+      ],
+    },
+    // ── 1 week ago
+    {
+      daysAgo: 12,
+      name: 'Сила — верх',
+      type: 'Strength',
+      durationMin: 65,
+      exercises: [
+        mkExercise('bench-press', [[65, 10], [75, 8], [80, 5]]),
+        mkExercise('barbell-row', [[55, 10], [65, 8], [70, 5]]),
+        mkExercise('shoulder-press', [[32.5, 10], [37.5, 8]]),
+        mkExercise('pull-up', [[7.5, 7], [7.5, 6]]),
+      ],
+    },
+    // ── 10 days ago
+    {
+      daysAgo: 10,
+      name: 'День ног',
+      type: 'Legs',
+      durationMin: 70,
+      exercises: [
+        mkExercise('squat', [[85, 10], [95, 8], [100, 6]]),
+        mkExercise('leg-press', [[130, 12], [150, 10], [150, 8]]),
+        mkExercise('romanian-deadlift', [[65, 10], [75, 8]]),
+        mkExercise('calf-raise', [[45, 15], [45, 12]]),
+      ],
+    },
+    // ── 1 week ago
+    {
+      daysAgo: 7,
+      name: 'День толчка',
+      type: 'Push',
+      durationMin: 60,
+      exercises: [
+        mkExercise('bench-press', [[67.5, 10], [75, 8], [80, 6]]),
+        mkExercise('incline-db-press', [[32.5, 10], [35, 8]]),
+        mkExercise('dip', [[0, 12], [0, 10]]),
+        mkExercise('lateral-raise', [[12.5, 12], [12.5, 10]]),
+      ],
+    },
+    // ── 5 days ago
+    {
+      daysAgo: 5,
+      name: 'День тяги',
+      type: 'Pull',
+      durationMin: 58,
+      exercises: [
+        mkExercise('deadlift', [[125, 8], [140, 5], [145, 3]]),
+        mkExercise('lat-pulldown', [[57.5, 10], [60, 8]]),
+        mkExercise('seated-cable-row', [[60, 10], [60, 8]]),
+        mkExercise('db-shoulder-press', [[17.5, 10], [20, 8]]),
+      ],
+    },
+    // ── 1 day ago: the latest session
     {
       daysAgo: 1,
-      name: 'Upper Power',
+      name: 'Сила — верх',
       type: 'Strength',
       durationMin: 62,
       exercises: [
@@ -261,7 +269,7 @@ function log(foodId: string, grams: number): LoggedFood {
   return {
     id: `dl-${++lfSeq}`,
     foodId: f.id,
-    name: f.name,
+    name: locFood(f.id, f.name),
     grams,
     calories: f.calories,
     protein: f.protein,
@@ -351,15 +359,15 @@ export function buildDemoNutrition(): NutritionDay[] {
 
 export function buildDemoRecords(): PersonalRecord[] {
   return [
-    { exerciseName: 'Bench Press', weightKg: 75, reps: 8, date: daysAgoISO(1) },
-    { exerciseName: 'Squat', weightKg: 100, reps: 6, date: daysAgoISO(1) },
-    { exerciseName: 'Deadlift', weightKg: 140, reps: 4, date: daysAgoISO(5) },
-    { exerciseName: 'Shoulder Press', weightKg: 35, reps: 10, date: daysAgoISO(1) },
+    { exerciseName: 'Жим штанги лёжа', weightKg: 75, reps: 8, date: daysAgoISO(1) },
+    { exerciseName: 'Приседания со штангой', weightKg: 100, reps: 6, date: daysAgoISO(1) },
+    { exerciseName: 'Становая тяга', weightKg: 140, reps: 4, date: daysAgoISO(5) },
+    { exerciseName: 'Жим штанги стоя', weightKg: 35, reps: 10, date: daysAgoISO(1) },
   ]
 }
 
 export const DEMO_USER: UserProfile = {
-  name: 'Alex',
+  name: 'Алекс',
   goals: { calories: 2200, protein: 160, fat: 70, carbs: 230 },
 }
 

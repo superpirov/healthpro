@@ -1,16 +1,17 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { Activity, Apple, LayoutDashboard, Settings, Timer, TrendingUp, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { t } from '@/lib/i18n'
 import { useAppStore } from '@/store/appStore'
 import { ThemeToggle } from './ThemeToggle'
 import { toast } from '@/components/ui/toast'
 
 export const NAV_ITEMS = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/workouts', label: 'Workouts', icon: Activity, end: false },
-  { to: '/nutrition', label: 'Nutrition', icon: Apple, end: false },
-  { to: '/timer', label: 'Timer', icon: Timer, end: false },
-  { to: '/progress', label: 'Progress', icon: TrendingUp, end: false },
+  { to: '/', label: t('dashboard'), icon: LayoutDashboard, end: true },
+  { to: '/workouts', label: t('workouts'), icon: Activity, end: false },
+  { to: '/nutrition', label: t('nutrition'), icon: Apple, end: false },
+  { to: '/timer', label: t('timer'), icon: Timer, end: false },
+  { to: '/progress', label: t('progress'), icon: TrendingUp, end: false },
 ] as const
 
 export function Sidebar() {
@@ -27,11 +28,11 @@ export function Sidebar() {
             <Zap className="size-5" strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-base font-bold tracking-tight leading-none">PULSE</p>
-            <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Fitness OS
-            </p>
-          </div>
+          <p className="text-base font-bold tracking-tight leading-none">PULSE</p>
+          <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            {t('fitness_os')}
+          </p>
+        </div>
         </div>
         <ThemeToggle className="size-9 shrink-0 border-transparent bg-transparent" />
       </div>
@@ -73,16 +74,16 @@ export function Sidebar() {
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold leading-tight">{name}</p>
-            <p className="text-[11px] text-muted-foreground">Demo account</p>
+            <p className="text-[11px] text-muted-foreground">{t('demo_account')}</p>
           </div>
         </div>
         <button
           type="button"
           onClick={() => {
             resetDemoData()
-            toast.success('Demo data restored', 'Workouts and nutrition are back to defaults')
+            toast.success(t('toast_demo_reset'), t('toast_demo_reset_desc'))
           }}
-          aria-label="Reset demo data"
+          aria-label={t('reset_demo')}
           className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-line bg-surface-2/60 text-muted-foreground transition-colors hover:text-foreground"
         >
           <Settings className="size-4" />
@@ -94,7 +95,7 @@ export function Sidebar() {
           pathname === '/timer' && 'text-muted-foreground/40'
         )}
       >
-        v1.0 · local demo data
+        {t('v1_local')}
       </p>
     </aside>
   )

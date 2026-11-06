@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { format, parseISO, subDays } from 'date-fns'
+import { subDays } from 'date-fns'
 import {
   ChevronLeft,
   ChevronRight,
@@ -25,6 +25,7 @@ import { useMacrosForDate } from '@/hooks/useDerived'
 import { loggedFoodMacros, mealMacros, pct } from '@/lib/calculations'
 import { fmt } from '@/lib/utils'
 import { toast } from '@/components/ui/toast'
+import { t, fdate, loc, locFood } from '@/lib/i18n'
 import type { FoodItem, LoggedFood, MealType } from '@/types'
 
 const MEALS: { type: MealType; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -43,7 +44,7 @@ export function NutritionPage() {
   const removeFoodFromMeal = useAppStore((s) => s.removeFoodFromMeal)
   const updateFoodGrams = useAppStore((s) => s.updateFoodGrams)
 
-  const todayISO = format(new Date(), 'yyyy-MM-dd')
+  const todayISO = fdate(new Date(), 'yyyy-MM-dd')
   const [date, setDate] = useState(todayISO)
   const isToday = date === todayISO
 
@@ -60,7 +61,7 @@ export function NutritionPage() {
   const overBy = Math.max(0, macros.calories - goals.calories)
 
   function shiftDate(delta: number) {
-    const next = format(subDays(parseISO(date + 'T12:00'), -delta), 'yyyy-MM-dd')
+    const next = fdate(subDays(new Date(date + 'T12:00'), -delta), 'yyyy-MM-dd')
     if (next > todayISO) return
     setDate(next)
   }
@@ -69,7 +70,7 @@ export function NutritionPage() {
     const item: LoggedFood = {
       id: `lf-${Date.now()}-${++uid}`,
       foodId: food.id,
-      name: food.name,
+      name: locFood(food.id, food.name),
       grams,
       calories: food.calories,
       protein: food.protein,
@@ -77,20 +78,20 @@ export function NutritionPage() {
       carbs: food.carbs,
     }
     addFoodToMeal(date, meal, item)
-    toast.success('Food logged', `${food.name} · ${grams} g → ${meal}`)
+    toast.success(t('toast_food_logged'), `${locFood(food.id, food.name)} · ${grams} ${t('g_unit')} → ${loc('meal', meal)}`)
   }
 
   return (
     <div className="animate-page-in">
       <PageHeader
-        title="Nutrition"
-        description="Daily calories and macros, meal by meal."
+        title={t('nutrition_title')}
+        description={t('nutrition_desc')}
         actions={
           <Button
             variant="nutri"
             onClick={() => setPickerMeal(guessMeal())}
           >
-            <Plus /> Add food
+            <Plus /> {t('add_food_btn')}
           </Button>
         }
       />
@@ -98,9 +99,9 @@ export function NutritionPage() {
       {/* Date navigator */}
       <div className="mb-5 flex items-center justify-between rounded-2xl border border-line bg-card p-2 pl-4">
         <p className="text-sm font-semibold">
-          {isToday ? 'Today' : format(parseISO(date + 'T12:00'), 'EEEE')}
+          {isToday ? t('today') : fdate(new Date(date + 'T12:00'), 'EEEE')}
           <span className="ml-2 text-muted-foreground tabular">
-            {format(parseISO(date + 'T12:00'), 'MMM d, yyyy')}
+            {fdate(new Date(date + 'T12:00'), 'd MMM yyyy')}
           </span>
         </p>
         <div className="flex items-center gap-1">
@@ -108,13 +109,13 @@ export function NutritionPage() {
             size="icon-sm"
             variant="ghost"
             onClick={() => shiftDate(1)}
-            aria-label="Previous day"
+            aria-label={t('prev_day')}
           >
             <ChevronLeft />
           </Button>
           {!isToday && (
             <Button size="sm" variant="ghost" onClick={() => setDate(todayISO)}>
-              Today
+              {t('today_btn')}
             </Button>
           )}
           <Button
@@ -122,7 +123,7 @@ export function NutritionPage() {
             variant="ghost"
             onClick={() => shiftDate(-1)}
             disabled={isToday}
-            aria-label="Next day"
+            aria-label={t('next_day')}
           >
             <ChevronRight />
           </Button>
@@ -139,15 +140,15 @@ export function NutritionPage() {
                   {fmt(macros.calories)}
                 </p>
                 <p className="mt-1.5 text-xs text-muted-foreground">
-                  of {fmt(goals.calories)} kcal
+                  {t('of_kcal_total', { total: fmt(goals.calories) })}
                 </p>
                 {overBy > 0 ? (
                   <p className="mt-2.5 rounded-full bg-ignite/12 px-2.5 py-0.5 text-xs font-semibold text-ignite tabular">
-                    {fmt(overBy)} kcal over
+                    {t('kcal_over_badge', { kcal: fmt(overBy) })}
                   </p>
                 ) : (
                   <p className="mt-2.5 rounded-full bg-nutri/12 px-2.5 py-0.5 text-xs font-semibold text-nutri tabular">
-                    {fmt(remaining)} kcal left
+                    {t('kcal_left_badge', { kcal: fmt(remaining) })}
                   </p>
                 )}
               </RingProgress>
@@ -156,9 +157,9 @@ export function NutritionPage() {
         </Card>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-3 lg:grid-cols-1">
-          <MacroCard label="Protein" value={macros.protein} goal={goals.protein} color="var(--nutri)" />
-          <MacroCard label="Fat" value={macros.fat} goal={goals.fat} color="var(--ignite)" />
-          <MacroCard label="Carbs" value={macros.carbs} goal={goals.carbs} color="#60A5FA" />
+          <MacroCard label={t('protein')} value={macros.protein} goal={goals.protein} color="var(--nutri)" />
+          <MacroCard label={t('fat')} value={macros.fat} goal={goals.fat} color="var(--ignite)" />
+          <MacroCard label={t('carbs')} value={macros.carbs} goal={goals.carbs} color="#60A5FA" />
         </div>
       </div>
 
@@ -167,6 +168,7 @@ export function NutritionPage() {
         {MEALS.map(({ type, icon: Icon }) => {
           const items = day?.meals[type] ?? []
           const m = mealMacros(items)
+          const mealLabel = loc('meal', type)
           return (
             <Card key={type}>
               <CardHeader className="flex-row items-center justify-between pb-2">
@@ -174,17 +176,17 @@ export function NutritionPage() {
                   <span className="flex size-8 items-center justify-center rounded-lg bg-nutri/12 text-nutri">
                     <Icon className="size-4" />
                   </span>
-                  {type}
+                  {mealLabel}
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   <Badge variant="nutri" className="tabular">
-                    <Flame /> {fmt(m.calories)} kcal
+                    <Flame /> {fmt(m.calories)} {t('kcal_unit')}
                   </Badge>
                   <Button
                     size="icon-sm"
                     variant="ghost"
                     onClick={() => setPickerMeal(type)}
-                    aria-label={`Add food to ${type}`}
+                    aria-label={t('add_food_to_meal', { meal: mealLabel })}
                   >
                     <Plus />
                   </Button>
@@ -197,7 +199,7 @@ export function NutritionPage() {
                     onClick={() => setPickerMeal(type)}
                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-line py-5 text-xs font-medium text-muted-foreground transition-colors hover:border-nutri/40 hover:text-nutri"
                   >
-                    <Plus className="size-3.5" /> Add food to {type.toLowerCase()}
+                    <Plus className="size-3.5" /> {t('empty_meal', { meal: mealLabel })}
                   </button>
                 ) : (
                   <ul className="divide-y divide-line">
@@ -208,8 +210,8 @@ export function NutritionPage() {
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-medium">{it.name}</p>
                             <p className="text-xs text-muted-foreground tabular">
-                              {fmt(lm.calories)} kcal · P {lm.protein.toFixed(1)} · F{' '}
-                              {lm.fat.toFixed(1)} · C {lm.carbs.toFixed(1)}
+                              {fmt(lm.calories)} {t('kcal_unit')} · Б {lm.protein.toFixed(1)} · Ж{' '}
+                              {lm.fat.toFixed(1)} · У {lm.carbs.toFixed(1)}
                             </p>
                           </div>
                           <div className="flex w-24 shrink-0 items-center gap-1">
@@ -222,9 +224,9 @@ export function NutritionPage() {
                                 updateFoodGrams(date, type, it.id, Number(e.target.value) || 1)
                               }
                               className="h-8 text-right text-sm tabular"
-                              aria-label={`${it.name} grams`}
+                              aria-label={t('grams_aria', { name: it.name })}
                             />
-                            <span className="text-xs text-muted-foreground">g</span>
+                            <span className="text-xs text-muted-foreground">{t('g_unit')}</span>
                           </div>
                           <Button
                             size="icon-sm"
@@ -232,9 +234,9 @@ export function NutritionPage() {
                             className="shrink-0 text-muted-foreground hover:text-destructive"
                             onClick={() => {
                               removeFoodFromMeal(date, type, it.id)
-                              toast.success('Removed', `${it.name} removed from ${type.toLowerCase()}`)
+                              toast.success(t('toast_food_removed'), t('toast_food_removed_desc', { name: it.name, meal: mealLabel }))
                             }}
-                            aria-label={`Remove ${it.name}`}
+                            aria-label={t('remove_food', { name: it.name })}
                           >
                             <Trash2 />
                           </Button>
@@ -245,8 +247,8 @@ export function NutritionPage() {
                 )}
                 {items.length > 0 && (
                   <p className="mt-2 border-t border-line pt-2 text-right text-xs text-muted-foreground tabular">
-                    {items.length} {items.length === 1 ? 'item' : 'items'} ·{' '}
-                    {fmt(m.protein)}P / {fmt(m.fat)}F / {fmt(m.carbs)}C
+                    {t('items_count', { n: items.length })} ·{' '}
+                    {fmt(m.protein)}Б / {fmt(m.fat)}Ж / {fmt(m.carbs)}У
                   </p>
                 )}
               </CardContent>
@@ -256,7 +258,7 @@ export function NutritionPage() {
       </div>
 
       <p className="mt-6 text-center text-[11px] text-muted-foreground/70">
-        {isToday ? 'Logging live' : 'Viewing history'} · {fmt(macros.calories)} kcal · saved locally
+        {isToday ? t('logging_live') : t('viewing_history')} · {fmt(macros.calories)} {t('kcal_unit')} · {t('saved_locally')}
       </p>
 
       {/* Food picker */}
@@ -317,7 +319,7 @@ function MacroCard({
         </p>
         <p className="ml-auto text-2xl font-bold tracking-tight tabular lg:ml-0 lg:mt-2 lg:w-full">
           {fmt(value)}
-          <span className="text-sm font-semibold text-muted-foreground"> / {goal} g</span>
+          <span className="text-sm font-semibold text-muted-foreground"> / {goal} {t('g_unit')}</span>
         </p>
       </div>
       <div className="hidden h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06] lg:mt-3 lg:block">
@@ -356,10 +358,9 @@ function QuickLogDialog({
     <Card className="fixed inset-x-4 bottom-24 z-40 mx-auto max-w-md p-4 shadow-2xl shadow-black/60 backdrop-blur sm:bottom-8">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-bold">Log {food.name}?</p>
+          <p className="text-sm font-bold">{t('quick_log_question', { name: locFood(food.id, food.name) })}</p>
           <p className="text-xs text-muted-foreground tabular">
-            {kcal} kcal · P {((food.protein * grams) / 100).toFixed(1)} · F{' '}
-            {((food.fat * grams) / 100).toFixed(1)} · C {((food.carbs * grams) / 100).toFixed(1)}
+            {t('kcal_macro_line', { kcal, p: ((food.protein * grams) / 100).toFixed(1), f: ((food.fat * grams) / 100).toFixed(1), c: ((food.carbs * grams) / 100).toFixed(1) })}
           </p>
         </div>
         <UtensilsCrossed className="size-5 shrink-0 text-nutri" />
@@ -372,7 +373,7 @@ function QuickLogDialog({
             variant={meal === type ? 'nutri' : 'outline'}
             onClick={() => setMeal(type)}
           >
-            {type}
+            {loc('meal', type)}
           </Button>
         ))}
         <div className="ml-auto flex items-center gap-1">
@@ -382,17 +383,17 @@ function QuickLogDialog({
             value={grams}
             onChange={(e) => setGrams(Math.max(1, Number(e.target.value) || 1))}
             className="h-8 w-20 text-right text-sm tabular"
-            aria-label="Grams"
+            aria-label={t('grams_label')}
           />
-          <span className="text-xs text-muted-foreground">g</span>
+          <span className="text-xs text-muted-foreground">{t('g_unit')}</span>
         </div>
       </div>
       <div className="mt-3 flex gap-2">
         <Button variant="ghost" className="flex-1" onClick={onClose}>
-          Not now
+          {t('not_now')}
         </Button>
         <Button variant="nutri" className="flex-1" onClick={() => onLog(meal, grams)}>
-          Add to {meal.toLowerCase()}
+          {t('add_to_meal_btn', { meal: loc('meal', meal) })}
         </Button>
       </div>
     </Card>

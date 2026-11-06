@@ -1,12 +1,12 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { format } from 'date-fns'
 import { Sidebar } from './Sidebar'
 import { MobileNav } from './MobileNav'
 import { ThemeToggle } from './ThemeToggle'
 import { Toaster } from '@/components/ui/toast'
 import { useAppStore } from '@/store/appStore'
 import { cn } from '@/lib/utils'
+import { fdate } from '@/lib/i18n'
 
 export function AppLayout() {
   const { pathname } = useLocation()
@@ -21,12 +21,12 @@ export function AppLayout() {
             {/* Mobile top bar */}
             <div className="mb-4 flex items-center justify-between lg:hidden">
               <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                {format(new Date(), 'EEEE, MMMM d')}
+                {fdate(new Date(), 'EEEE, d MMMM')}
               </p>
               <ThemeToggle className="size-9" />
             </div>
             <p className="mb-4 hidden text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground lg:block">
-              {format(new Date(), 'EEEE, MMMM d')}
+              {fdate(new Date(), 'EEEE, d MMMM')}
             </p>
             <AnimatePresence mode="wait">
               <motion.div

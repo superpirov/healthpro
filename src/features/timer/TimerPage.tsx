@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/sheet'
 import { useIntervalTimer } from '@/hooks/useIntervalTimer'
 import { cn, fmtClock } from '@/lib/utils'
+import { t, locPreset, locPresetDesc } from '@/lib/i18n'
 import type { IntervalConfig, TimerPreset, TimerPhase } from '@/types'
 
 const PRESETS: TimerPreset[] = [
@@ -39,10 +40,10 @@ const PHASE_META: Record<
   Exclude<TimerPhase, 'idle' | 'done'>,
   { label: string; color: string; badge: string; hint: string }
 > = {
-  prepare: { label: 'Get ready', color: 'var(--nutri)', badge: 'Preparation', hint: 'Find your position' },
-  work: { label: 'Work', color: 'var(--energy)', badge: 'Work', hint: 'Give it everything' },
-  rest: { label: 'Rest', color: 'var(--ignite)', badge: 'Rest', hint: 'Breathe and recover' },
-  'rest-between': { label: 'Rest', color: 'var(--ignite)', badge: 'Between rounds', hint: 'Longer break' },
+  prepare: { label: t('phase_prepare'), color: 'var(--nutri)', badge: t('phase_prepare'), hint: t('hint_prepare') },
+  work: { label: t('phase_work'), color: 'var(--energy)', badge: t('phase_work'), hint: t('hint_work') },
+  rest: { label: t('phase_rest'), color: 'var(--ignite)', badge: t('phase_rest'), hint: t('hint_rest') },
+  'rest-between': { label: t('phase_rest'), color: 'var(--ignite)', badge: t('phase_between'), hint: t('hint_between') },
 }
 
 function totalWorkSec(c: IntervalConfig): number {
@@ -60,7 +61,7 @@ export function TimerPage() {
 
   // Sync the document title with the countdown
   useEffect(() => {
-    const base = 'PULSE — Fitness & Nutrition'
+    const base = 'PULSE'
     if (phase === 'prepare' || phase === 'work' || phase === 'rest' || phase === 'rest-between') {
       document.title = `${fmtClock(remainingSec)} · ${PHASE_META[phase].label} — PULSE`
     } else {
@@ -94,20 +95,20 @@ export function TimerPage() {
   return (
     <div className="animate-page-in">
       <PageHeader
-        title="Interval timer"
-        description="HIIT, Tabata, boxing rounds — timed to the second."
+        title={t('timer_title')}
+        description={t('timer_desc')}
         actions={
           <>
             <Button
               size="icon"
               variant="outline"
               onClick={() => setSoundOn((v) => !v)}
-              aria-label={soundOn ? 'Mute sounds' : 'Unmute sounds'}
+              aria-label={soundOn ? t('mute_sounds') : t('unmute_sounds')}
             >
               {soundOn ? <Volume2 /> : <VolumeX />}
             </Button>
             <Button variant="outline" onClick={() => setSettingsOpen(true)}>
-              <Settings2 /> Settings
+              <Settings2 /> {t('settings')}
             </Button>
           </>
         }
@@ -172,9 +173,9 @@ export function TimerPage() {
                     style={{ backgroundColor: ringColor }}
                   />
                   {phase === 'idle'
-                    ? 'Ready'
+                    ? t('badge_ready')
                     : phase === 'done'
-                      ? 'Complete'
+                      ? t('badge_complete')
                       : meta?.badge}
                 </Badge>
                 <p
@@ -185,10 +186,10 @@ export function TimerPage() {
                 </p>
                 <p className="mt-2 text-sm font-medium text-muted-foreground">
                   {phase === 'idle'
-                    ? `${config.rounds} rounds · ${Math.round(totalWorkSec(config) / 60)} min total`
+                    ? t('idle_sub', { rounds: config.rounds, min: Math.round(totalWorkSec(config) / 60) })
                     : phase === 'done'
-                      ? 'Session complete — nice work'
-                      : `Round ${round} of ${totalRounds}`}
+                      ? t('done_sub')
+                      : t('round_of', { r: round, t: totalRounds })}
                 </p>
                 {meta && <p className="mt-0.5 text-xs text-muted-foreground/70">{meta.hint}</p>}
               </RingProgress>
@@ -196,7 +197,7 @@ export function TimerPage() {
 
             {totalRemaining > 0 && (
               <p className="mt-6 text-xs text-muted-foreground tabular">
-                ≈ {fmtClock(totalRemaining)} left in session
+                ≈ {fmtClock(totalRemaining)} {t('left_in_session')}
               </p>
             )}
 
@@ -211,11 +212,11 @@ export function TimerPage() {
                 >
                   {phase === 'done' ? (
                     <>
-                      <RotateCcw /> Again
+                      <RotateCcw /> {t('again')}
                     </>
                   ) : (
                     <>
-                      <Play /> Start
+                      <Play /> {t('start')}
                     </>
                   )}
                 </Button>
@@ -226,7 +227,7 @@ export function TimerPage() {
                     variant="outline"
                     className="size-12 rounded-full"
                     onClick={timer.reset}
-                    aria-label="Reset"
+                    aria-label={t('reset_aria')}
                   >
                     <RotateCcw />
                   </Button>
@@ -238,11 +239,11 @@ export function TimerPage() {
                   >
                     {isRunning ? (
                       <>
-                        <Pause /> Pause
+                        <Pause /> {t('pause')}
                       </>
                     ) : (
                       <>
-                        <Play /> Resume
+                        <Play /> {t('resume')}
                       </>
                     )}
                   </Button>
@@ -251,7 +252,7 @@ export function TimerPage() {
                     variant="outline"
                     className="size-12 rounded-full"
                     onClick={timer.skip}
-                    aria-label="Skip to next interval"
+                    aria-label={t('skip_aria')}
                   >
                     <SkipForward />
                   </Button>
@@ -261,7 +262,7 @@ export function TimerPage() {
 
             <SwitchRow
               className="mt-8"
-              label="Sound signals"
+              label={t('sound_signals')}
               checked={soundOn}
               onChange={setSoundOn}
             />
@@ -272,7 +273,7 @@ export function TimerPage() {
         <div className="flex flex-col gap-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Modes</CardTitle>
+              <CardTitle className="text-base">{t('modes')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {PRESETS.map((p) => (
@@ -290,8 +291,8 @@ export function TimerPage() {
                   )}
                 >
                   <div>
-                    <p className="text-sm font-semibold">{p.name}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground tabular">{p.description}</p>
+                    <p className="text-sm font-semibold">{locPreset(p.name)}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground tabular">{locPresetDesc(p.description)}</p>
                   </div>
                   {presetId === p.id && !isCustom && (
                     <span className="size-2 shrink-0 rounded-full bg-ignite glow-ignite" />
@@ -303,24 +304,24 @@ export function TimerPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Current setup</CardTitle>
+              <CardTitle className="text-base">{t('current_setup')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-2 text-sm">
-                <ConfigPill label="Prep" value={`${config.prepSec}s`} />
-                <ConfigPill label="Work" value={`${config.workSec}s`} accent="text-energy" />
-                <ConfigPill label="Rest" value={`${config.restSec}s`} accent="text-ignite" />
-                <ConfigPill label="Rounds" value={String(config.rounds)} />
+                <ConfigPill label={t('pill_prep')} value={`${config.prepSec}${t('sec_unit')}`} />
+                <ConfigPill label={t('pill_work')} value={`${config.workSec}${t('sec_unit')}`} accent="text-energy" />
+                <ConfigPill label={t('pill_rest')} value={`${config.restSec}${t('sec_unit')}`} accent="text-ignite" />
+                <ConfigPill label={t('pill_rounds')} value={String(config.rounds)} />
               </div>
               <p className="mt-3 text-xs text-muted-foreground tabular">
-                {isCustom ? 'Custom' : PRESETS.find((p) => p.id === presetId)?.name} ·{' '}
+                {isCustom ? t('timer_custom') : locPreset(PRESETS.find((p) => p.id === presetId)?.name ?? '')} ·{' '}
                 {Math.round(
                   (config.prepSec +
                     config.rounds * config.workSec +
                     (config.rounds - 1) * config.restSec) /
                     60
                 )}{' '}
-                min session
+                {t('min_session')}
               </p>
             </CardContent>
           </Card>
@@ -331,14 +332,14 @@ export function TimerPage() {
       <Sheet open={settingsOpen} onOpenChange={(o) => !isRunning && setSettingsOpen(o)}>
         <SheetContent side="right">
           <SheetHeader>
-            <SheetTitle>Interval settings</SheetTitle>
+            <SheetTitle>{t('interval_settings')}</SheetTitle>
             <SheetDescription>
-              {isRunning ? 'Stop the timer to edit settings.' : 'Times are in seconds.'}
+              {isRunning ? t('stop_to_edit') : t('times_seconds')}
             </SheetDescription>
           </SheetHeader>
           <div className="space-y-5 overflow-y-auto p-5">
             <NumberField
-              label="Preparation time, sec"
+              label={t('nf_prep')}
               value={config.prepSec}
               min={0}
               max={300}
@@ -346,7 +347,7 @@ export function TimerPage() {
               onChange={(v) => patch(setConfig, { prepSec: v })}
             />
             <NumberField
-              label="Work time, sec"
+              label={t('nf_work')}
               value={config.workSec}
               min={5}
               max={600}
@@ -354,7 +355,7 @@ export function TimerPage() {
               onChange={(v) => patch(setConfig, { workSec: v })}
             />
             <NumberField
-              label="Rest time, sec"
+              label={t('nf_rest')}
               value={config.restSec}
               min={0}
               max={600}
@@ -362,7 +363,7 @@ export function TimerPage() {
               onChange={(v) => patch(setConfig, { restSec: v })}
             />
             <NumberField
-              label="Rounds"
+              label={t('nf_rounds')}
               value={config.rounds}
               min={1}
               max={99}
@@ -370,7 +371,7 @@ export function TimerPage() {
               onChange={(v) => patch(setConfig, { rounds: v })}
             />
             <NumberField
-              label="Rest between rounds, sec"
+              label={t('nf_rest_between')}
               value={config.restBetweenRoundsSec}
               min={0}
               max={600}
@@ -378,8 +379,7 @@ export function TimerPage() {
               onChange={(v) => patch(setConfig, { restBetweenRoundsSec: v })}
             />
             <div className="rounded-xl border border-line bg-surface-2/50 p-3.5 text-xs leading-relaxed text-muted-foreground">
-              Longer rest is applied automatically after each round when “rest between rounds” exceeds
-              the regular rest.
+              {t('rest_between_note')}
             </div>
             <Button
               variant="secondary"
@@ -390,7 +390,7 @@ export function TimerPage() {
                 setSettingsOpen(false)
               }}
             >
-              Save as custom setup
+              {t('save_custom')}
             </Button>
           </div>
         </SheetContent>
@@ -451,7 +451,7 @@ function NumberField({
           variant="outline"
           disabled={disabled || value <= min}
           onClick={() => onChange(Math.max(min, value - (max > 100 ? 5 : 1)))}
-          aria-label={`Decrease ${label}`}
+          aria-label={`- ${label}`}
         >
           −
         </Button>
@@ -474,7 +474,7 @@ function NumberField({
           variant="outline"
           disabled={disabled || value >= max}
           onClick={() => onChange(Math.min(max, value + (max > 100 ? 5 : 1)))}
-          aria-label={`Increase ${label}`}
+          aria-label={`+ ${label}`}
         >
           +
         </Button>

@@ -7,6 +7,7 @@ import { fmt, fmtDuration } from '@/lib/utils'
 import { workoutDoneSetCount, workoutVolume } from '@/lib/calculations'
 import { useWorkoutById } from '@/hooks/useDerived'
 import { EmptyState } from '@/components/ui/page-header'
+import { t, locWorkoutName } from '@/lib/i18n'
 
 const container = {
   hidden: {},
@@ -18,7 +19,7 @@ const item = {
 }
 
 export function SummaryPage() {
-  const { id } = useParams()
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const workout = useWorkoutById(id)
 
@@ -26,11 +27,11 @@ export function SummaryPage() {
     return (
       <EmptyState
         icon={Dumbbell}
-        title="Workout not found"
-        description="This session may have been discarded."
+        title={t('workout_not_found')}
+        description={t('workout_not_found_desc')}
         action={
           <Button asChild variant="energy">
-            <Link to="/workouts">Back to workouts</Link>
+            <Link to="/workouts">{t('back_to_workouts')}</Link>
           </Button>
         }
       />
@@ -47,10 +48,10 @@ export function SummaryPage() {
           <CheckCircle2 className="size-8 text-primary" strokeWidth={2.2} />
         </motion.div>
         <motion.h1 variants={item} className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
-          Workout complete
+          {t('workout_complete')}
         </motion.h1>
         <motion.p variants={item} className="mt-2 text-sm text-muted-foreground sm:text-base">
-          <span className="font-semibold text-foreground">{workout.name}</span> — solid session.
+          <span className="font-semibold text-foreground">{locWorkoutName(workout.name)}</span> {t('solid_session')}
         </motion.p>
       </motion.div>
 
@@ -60,10 +61,10 @@ export function SummaryPage() {
         animate="show"
         className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
       >
-        <SummaryStat variants={item} icon={Clock} accent="text-ignite bg-ignite/12" label="Duration" value={fmtDuration(workout.durationMin)} />
-        <SummaryStat variants={item} icon={Dumbbell} accent="text-energy bg-energy/12" label="Exercises" value={String(workout.exercises.length)} />
-        <SummaryStat variants={item} icon={Layers} accent="text-energy bg-energy/12" label="Sets done" value={String(sets)} />
-        <SummaryStat variants={item} icon={Flame} accent="text-nutri bg-nutri/12" label="Volume" value={`${fmt(volume)} kg`} />
+        <SummaryStat variants={item} icon={Clock} accent="text-ignite bg-ignite/12" label={t('summary_duration')} value={fmtDuration(workout.durationMin)} />
+        <SummaryStat variants={item} icon={Dumbbell} accent="text-energy bg-energy/12" label={t('summary_exercises')} value={String(workout.exercises.length)} />
+        <SummaryStat variants={item} icon={Layers} accent="text-energy bg-energy/12" label={t('summary_sets_done')} value={String(sets)} />
+        <SummaryStat variants={item} icon={Flame} accent="text-nutri bg-nutri/12" label={t('summary_volume')} value={`${fmt(volume)} ${t('kg_unit')}`} />
       </motion.div>
 
       <motion.div
@@ -73,11 +74,11 @@ export function SummaryPage() {
         className="mt-8 flex flex-col gap-2 sm:flex-row"
       >
         <Button variant="outline" className="flex-1" onClick={() => navigate(`/workouts/${workout.id}`)}>
-          View details
+          {t('view_details')}
         </Button>
         <Button asChild variant="energy" className="flex-1">
           <Link to="/progress">
-            See progress <ArrowRight />
+            {t('see_progress')} <ArrowRight />
           </Link>
         </Button>
       </motion.div>

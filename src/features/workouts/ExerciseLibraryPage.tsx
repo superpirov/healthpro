@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Segmented } from '@/components/ui/segmented'
 import { EXERCISES, MUSCLE_GROUPS } from '@/data/exercises'
+import { t, loc, matchExercise, locExercise, locExerciseDesc } from '@/lib/i18n'
 import type { MuscleGroup } from '@/types'
 
 type Filter = 'All' | MuscleGroup
@@ -30,11 +31,7 @@ export function ExerciseLibraryPage() {
     const needle = q.trim().toLowerCase()
     return EXERCISES.filter(
       (e) =>
-        (filter === 'All' || e.muscleGroup === filter) &&
-        (!needle ||
-          e.name.toLowerCase().includes(needle) ||
-          e.equipment.toLowerCase().includes(needle) ||
-          e.muscleGroup.toLowerCase().includes(needle))
+        (filter === 'All' || e.muscleGroup === filter) && matchExercise(needle, e.name, e.muscleGroup, e.equipment)
     )
   }, [q, filter])
 
@@ -42,13 +39,13 @@ export function ExerciseLibraryPage() {
     <div className="animate-page-in">
       <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4">
         <Link to="/workouts">
-          <ArrowLeft /> Workouts
+          <ArrowLeft /> {t('back_nav_workouts')}
         </Link>
       </Button>
 
       <PageHeader
-        title="Exercise library"
-        description={`${EXERCISES.length} exercises across 7 muscle groups.`}
+        title={t('lib_title')}
+        description={t('lib_desc', { n: EXERCISES.length })}
       />
 
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -56,7 +53,7 @@ export function ExerciseLibraryPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search by name, muscle or equipment…"
+            placeholder={t('lib_search_placeholder')}
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
@@ -67,8 +64,8 @@ export function ExerciseLibraryPage() {
             value={filter}
             onChange={setFilter}
             options={[
-              { value: 'All' as Filter, label: 'All' },
-              ...MUSCLE_GROUPS.map((g) => ({ value: g as Filter, label: g })),
+              { value: 'All' as Filter, label: t('all_filter') },
+              ...MUSCLE_GROUPS.map((g) => ({ value: g as Filter, label: loc('mg', g) })),
             ]}
           />
         </div>
@@ -77,24 +74,24 @@ export function ExerciseLibraryPage() {
       {list.length === 0 ? (
         <EmptyState
           icon={Dumbbell}
-          title="Nothing found"
-          description={`No exercises match “${q}”. Try a different name or category.`}
+          title={t('nothing_found')}
+          description={t('lib_nothing_desc', { q })}
         />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {list.map((e) => (
             <Card key={e.id} className="flex flex-col p-4 transition-colors hover:border-white/15">
               <div className="flex items-start justify-between gap-2">
-                <p className="font-semibold leading-snug">{e.name}</p>
+                <p className="font-semibold leading-snug">{locExercise(e.id, e.name)}</p>
                 <Badge className={`shrink-0 ${GROUP_COLOR[e.muscleGroup]} border-transparent`}>
-                  {e.muscleGroup}
+                  {loc('mg', e.muscleGroup)}
                 </Badge>
               </div>
               <p className="mt-2 flex-1 text-xs leading-relaxed text-muted-foreground">
-                {e.description}
+                {locExerciseDesc(e.id, e.description)}
               </p>
               <p className="mt-3 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/70">
-                Equipment: <span className="text-muted-foreground">{e.equipment}</span>
+                {t('equipment_label')} <span className="text-muted-foreground">{loc('eq', e.equipment)}</span>
               </p>
             </Card>
           ))}

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { format } from 'date-fns'
 import {
   ArrowLeft,
   CalendarDays,
@@ -26,16 +25,20 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { ExercisePicker } from './ExercisePicker'
-import { relativeDay } from './WorkoutsPage'
+import { relativeDay, locType } from './WorkoutsPage'
 import { useAppStore } from '@/store/appStore'
 import { useWorkoutById } from '@/hooks/useDerived'
 import { EXERCISES } from '@/data/exercises'
 import { exerciseVolume } from '@/lib/calculations'
 import { fmt, fmtCompact, fmtDuration } from '@/lib/utils'
+import { t, fdate, loc, locExercise, locWorkoutName } from '@/lib/i18n'
+import { toast } from '@/components/ui/toast'
 import type { WorkoutExercise } from '@/types'
 
 let uid = 0
 const nid = (p: string) => `${p}-edit-${Date.now()}-${++uid}`
+
+
 
 export function WorkoutDetailPage() {
   const { id } = useParams()
@@ -53,11 +56,11 @@ export function WorkoutDetailPage() {
     return (
       <EmptyState
         icon={Dumbbell}
-        title="Workout not found"
-        description="It may have been deleted."
+        title={t('workout_not_found')}
+        description={t('deleted_note')}
         action={
           <Button asChild variant="energy">
-            <Link to="/workouts">Back to workouts</Link>
+            <Link to="/workouts">{t('back_to_workouts')}</Link>
           </Button>
         }
       />
@@ -76,6 +79,7 @@ export function WorkoutDetailPage() {
   function saveEdit() {
     updateWorkout({ ...workout!, exercises: draft })
     setEditing(false)
+    toast.success(t('toast_workout_saved'))
   }
 
   function patch(idx: number, ex: WorkoutExercise) {
@@ -108,7 +112,7 @@ export function WorkoutDetailPage() {
       {
         id: nid('e'),
         exerciseId: def.id,
-        name: def.name,
+        name: locExercise(def.id, def.name),
         muscleGroup: def.muscleGroup,
         sets: Array.from({ length: 3 }, () => ({ id: nid('s'), weight: 20, reps: 10, done: true })),
       },
@@ -120,7 +124,7 @@ export function WorkoutDetailPage() {
     <div className="animate-page-in mx-auto max-w-3xl">
       <Button asChild variant="ghost" size="sm" className="-ml-2 mb-4">
         <Link to="/workouts">
-          <ArrowLeft /> Workouts
+          <ArrowLeft /> {t('back_nav_workouts')}
         </Link>
       </Button>
 
@@ -128,12 +132,12 @@ export function WorkoutDetailPage() {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{workout.name}</h1>
-            <Badge variant="secondary">{workout.type}</Badge>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{locWorkoutName(workout.name)}</h1>
+            <Badge variant="secondary">{locType(workout.type)}</Badge>
           </div>
           <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground tabular">
             <span className="inline-flex items-center gap-1.5">
-              <CalendarDays className="size-4" /> {format(new Date(workout.date + 'T12:00'), 'EEEE, MMM d, yyyy')}
+              <CalendarDays className="size-4" /> {fdate(new Date(workout.date + 'T12:00'), 'EEEE, d MMM yyyy')}
               <span className="text-muted-foreground/60">· {relativeDay(workout.date)}</span>
             </span>
             <span className="inline-flex items-center gap-1.5">
@@ -145,16 +149,16 @@ export function WorkoutDetailPage() {
           {editing ? (
             <>
               <Button variant="outline" onClick={() => setEditing(false)}>
-                <X /> Cancel
+                <X /> {t('cancel')}
               </Button>
               <Button variant="energy" onClick={saveEdit}>
-                <Check /> Save
+                <Check /> {t('save')}
               </Button>
             </>
           ) : (
             <>
               <Button variant="outline" onClick={startEdit}>
-                <Pencil /> Edit
+                <Pencil /> {t('edit')}
               </Button>
               <Button variant="destructive" onClick={() => setConfirmDelete(true)}>
                 <Trash2 />
@@ -169,21 +173,21 @@ export function WorkoutDetailPage() {
         <Card className="p-4 text-center">
           <p className="text-xl font-bold tracking-tight tabular sm:text-2xl">{exercises.length}</p>
           <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Exercises
+            {t('summary_exercises')}
           </p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xl font-bold tracking-tight tabular sm:text-2xl">{sets}</p>
           <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Sets
+            {t('summary_sets_done')}
           </p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xl font-bold tracking-tight tabular sm:text-2xl">
-            {fmtCompact(volume)} <span className="text-sm font-semibold text-muted-foreground">kg</span>
+            {fmtCompact(volume)} <span className="text-sm font-semibold text-muted-foreground">{t('kg_unit')}</span>
           </p>
           <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Volume
+            {t('volume')}
           </p>
         </Card>
       </div>
@@ -196,7 +200,7 @@ export function WorkoutDetailPage() {
               <div className="min-w-0">
                 <p className="truncate font-semibold">{ex.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {ex.muscleGroup} · {fmt(exerciseVolume(ex))} kg volume
+                  {t('exercise_volume_note', { group: loc('mg', ex.muscleGroup), vol: fmt(exerciseVolume(ex)) })}
                 </p>
               </div>
               {editing && (
@@ -205,7 +209,7 @@ export function WorkoutDetailPage() {
                   variant="ghost"
                   className="shrink-0 text-muted-foreground hover:text-destructive"
                   onClick={() => removeExercise(idx)}
-                  aria-label={`Remove ${ex.name}`}
+                  aria-label={`${t('remove_exercise')}: ${ex.name}`}
                 >
                   <Trash2 />
                 </Button>
@@ -213,9 +217,9 @@ export function WorkoutDetailPage() {
             </div>
             <div className="overflow-hidden rounded-xl border border-line">
               <div className="grid grid-cols-[44px_1fr_1fr] bg-surface-2/60 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                <span>Set</span>
-                <span>Weight, kg</span>
-                <span>Reps</span>
+                <span>{t('col_set')}</span>
+                <span>{t('col_weight_kg')}</span>
+                <span>{t('col_reps')}</span>
               </div>
               {ex.sets.map((s, i) => (
                 <div
@@ -240,7 +244,7 @@ export function WorkoutDetailPage() {
                           })
                         }
                         className="h-9 text-center tabular"
-                        aria-label={`Set ${i + 1} weight`}
+                        aria-label={`${t('col_weight_kg')} ${i + 1}`}
                       />
                       <div className="flex items-center gap-1.5">
                         <Input
@@ -257,14 +261,14 @@ export function WorkoutDetailPage() {
                             })
                           }
                           className="h-9 text-center tabular"
-                          aria-label={`Set ${i + 1} reps`}
+                          aria-label={`${t('col_reps')} ${i + 1}`}
                         />
                         <Button
                           size="icon-sm"
                           variant="ghost"
                           className="shrink-0 text-muted-foreground hover:text-destructive"
                           onClick={() => removeSet(idx, s.id)}
-                          aria-label={`Remove set ${i + 1}`}
+                          aria-label={`${t('delete_btn')} ${i + 1}`}
                         >
                           <Trash2 />
                         </Button>
@@ -272,7 +276,7 @@ export function WorkoutDetailPage() {
                     </>
                   ) : (
                     <>
-                      <span className="py-1 text-sm tabular">{s.weight} kg</span>
+                      <span className="py-1 text-sm tabular">{s.weight} {t('kg_unit')}</span>
                       <span className="py-1 text-sm tabular">× {s.reps}</span>
                     </>
                   )}
@@ -280,27 +284,27 @@ export function WorkoutDetailPage() {
               ))}
               {ex.sets.length === 0 && (
                 <p className="border-t border-line px-3 py-3 text-center text-xs text-muted-foreground">
-                  No sets
+                  {t('no_sets')}
                 </p>
               )}
             </div>
             {editing && (
               <Button size="sm" variant="outline" className="mt-3" onClick={() => addSet(idx)}>
-                <Plus /> Add set
+                <Plus /> {t('add_set')}
               </Button>
             )}
           </Card>
         ))}
         {exercises.length === 0 && (
           <p className="rounded-2xl border border-dashed border-line py-10 text-center text-sm text-muted-foreground">
-            No exercises in this session.
+            {t('no_exercises_session')}
           </p>
         )}
       </div>
 
       {editing && (
         <Button variant="outline" className="mt-3 w-full border-dashed py-5" onClick={() => setPickerOpen(true)}>
-          <Plus /> Add exercise
+          <Plus /> {t('add_exercise')}
         </Button>
       )}
 
@@ -309,24 +313,27 @@ export function WorkoutDetailPage() {
       <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Delete this workout?</DialogTitle>
+            <DialogTitle>{t('dialog_delete_title')}</DialogTitle>
             <DialogDescription>
-              “{workout.name}” from {format(new Date(workout.date + 'T12:00'), 'MMM d')} will be removed
-              from your history. This cannot be undone.
+              {t('dialog_delete_desc', {
+                name: locWorkoutName(workout.name),
+                date: fdate(new Date(workout.date + 'T12:00'), 'd MMM'),
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmDelete(false)}>
-              Keep it
+              {t('keep_it')}
             </Button>
             <Button
               variant="destructive"
               onClick={() => {
                 deleteWorkout(workout.id)
+                toast.success(t('toast_workout_deleted'))
                 navigate('/workouts')
               }}
             >
-              <Trash2 /> Delete
+              <Trash2 /> {t('delete_btn')}
             </Button>
           </DialogFooter>
         </DialogContent>

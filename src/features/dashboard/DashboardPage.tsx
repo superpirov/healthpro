@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { format } from 'date-fns'
 import {
   Activity,
   Apple,
@@ -24,13 +23,14 @@ import {
 } from '@/hooks/useDerived'
 import { fmt, fmtCompact, fmtDuration } from '@/lib/utils'
 import { pct, workoutVolume } from '@/lib/calculations'
+import { t, fdate, locWorkoutName } from '@/lib/i18n'
 
 function greeting(): string {
   const h = new Date().getHours()
-  if (h < 5) return 'Good night'
-  if (h < 12) return 'Good morning'
-  if (h < 18) return 'Good afternoon'
-  return 'Good evening'
+  if (h < 5) return t('greeting_night')
+  if (h < 12) return t('greeting_morning')
+  if (h < 18) return t('greeting_afternoon')
+  return t('greeting_evening')
 }
 
 export function DashboardPage() {
@@ -51,18 +51,16 @@ export function DashboardPage() {
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
           {greeting()}, {name}
         </h1>
-        <p className="text-sm text-muted-foreground sm:text-[15px]">
-          Here's your fitness overview for today.
-        </p>
+        <p className="text-sm text-muted-foreground sm:text-[15px]">{t('overview')}</p>
         <p className="mt-0.5 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground/70 lg:hidden">
-          {format(new Date(), 'EEEE, MMMM d')}
+          {fdate(new Date(), 'EEEE, d MMMM')}
         </p>
       </header>
 
       {/* KPI row */}
       <section className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <StatCard
-          label="Calories"
+          label={t('kpi_calories')}
           accent="nutri"
           icon={Flame}
           value={
@@ -73,44 +71,47 @@ export function DashboardPage() {
               </span>
             </span>
           }
-          sub="kcal today"
+          sub={t('kcal_today')}
           progress={kcalPct}
           progressColor="var(--nutri)"
         />
         <StatCard
-          label="Protein"
+          label={t('kpi_protein')}
           accent="nutri"
           icon={Activity}
           value={
             <span className="whitespace-nowrap">
               {fmt(macros.protein)}
-              <span className="text-base font-semibold text-muted-foreground"> / {goals.protein} g</span>
+              <span className="text-base font-semibold text-muted-foreground">
+                {' '}
+                / {goals.protein} {t('g_unit')}
+              </span>
             </span>
           }
-          sub={`${Math.round(pct(macros.protein, goals.protein))}% of goal`}
+          sub={`${Math.round(pct(macros.protein, goals.protein))} ${t('of_goal')}`}
           progress={pct(macros.protein, goals.protein)}
           progressColor="var(--nutri)"
         />
         <StatCard
-          label="Workouts"
+          label={t('kpi_workouts')}
           accent="energy"
           icon={Dumbbell}
           value={
             <>
               {weekWorkouts.length}
               <span className="ml-1.5 text-base font-semibold text-muted-foreground">
-                this week
+                {t('this_week_short')}
               </span>
             </>
           }
-          sub={`${fmtCompact(weekWorkouts.reduce((s, w) => s + workoutVolume(w), 0))} kg volume`}
+          sub={`${fmtCompact(weekWorkouts.reduce((s, w) => s + workoutVolume(w), 0))} ${t('kg_volume_sub')}`}
         />
         <StatCard
-          label="Active time"
+          label={t('kpi_active_time')}
           accent="ignite"
           icon={Timer}
           value={fmtDuration(activeMinutes)}
-          sub="last 7 days"
+          sub={t('last_7_days')}
         />
       </section>
 
@@ -119,9 +120,9 @@ export function DashboardPage() {
         {/* Nutrition ring */}
         <Card className="lg:col-span-2">
           <CardHeader className="flex-row items-center justify-between">
-            <CardTitle className="text-base">Nutrition overview</CardTitle>
+            <CardTitle className="text-base">{t('nutrition_overview')}</CardTitle>
             <Badge variant="nutri">
-              <Apple /> Today
+              <Apple /> {t('today')}
             </Badge>
           </CardHeader>
           <CardContent>
@@ -131,21 +132,23 @@ export function DashboardPage() {
                   {fmt(macros.calories)}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  of {fmt(goals.calories)} kcal
+                  {t('of_total_kcal', { total: fmt(goals.calories) })}
                 </p>
                 <p className="mt-2 rounded-full bg-nutri/12 px-2.5 py-0.5 text-xs font-semibold text-nutri tabular">
-                  {fmt(Math.max(0, goals.calories - macros.calories))} kcal left
+                  {t('kcal_left', {
+                    kcal: fmt(Math.max(0, goals.calories - macros.calories)),
+                  })}
                 </p>
               </RingProgress>
             </div>
             <div className="mt-4 space-y-3">
-              <MacroBar label="Protein" value={macros.protein} goal={goals.protein} color="var(--nutri)" />
-              <MacroBar label="Fat" value={macros.fat} goal={goals.fat} color="var(--ignite)" />
-              <MacroBar label="Carbs" value={macros.carbs} goal={goals.carbs} color="#60A5FA" />
+              <MacroBar label={t('protein')} value={macros.protein} goal={goals.protein} color="var(--nutri)" />
+              <MacroBar label={t('fat')} value={macros.fat} goal={goals.fat} color="var(--ignite)" />
+              <MacroBar label={t('carbs')} value={macros.carbs} goal={goals.carbs} color="#60A5FA" />
             </div>
             <Button asChild variant="nutri" className="mt-5 w-full">
               <Link to="/nutrition">
-                <Apple /> Log food
+                <Apple /> {t('log_food')}
               </Link>
             </Button>
           </CardContent>
@@ -156,39 +159,42 @@ export function DashboardPage() {
           {/* Last workout */}
           <Card>
             <CardHeader className="flex-row items-center justify-between">
-              <CardTitle className="text-base">Last workout</CardTitle>
+              <CardTitle className="text-base">{t('last_workout')}</CardTitle>
               {latest && (
                 <Badge variant="secondary">
-                  {format(new Date(latest.date + 'T12:00'), 'EEE, MMM d')}
+                  {fdate(new Date(latest.date + 'T12:00'), 'EEE, d MMM')}
                 </Badge>
               )}
             </CardHeader>
             <CardContent>
               {latest ? (
                 <div>
-                  <p className="text-xl font-bold tracking-tight">{latest.name}</p>
+                  <p className="text-xl font-bold tracking-tight">{locWorkoutName(latest.name)}</p>
                   <div className="mt-4 grid grid-cols-3 gap-3">
-                    <MiniStat label="Duration" value={fmtDuration(latest.durationMin)} />
-                    <MiniStat label="Exercises" value={String(latest.exercises.length)} />
-                    <MiniStat label="Volume" value={`${fmtCompact(workoutVolume(latest))} kg`} />
+                    <MiniStat label={t('duration')} value={fmtDuration(latest.durationMin)} />
+                    <MiniStat label={t('exercises_count_label')} value={String(latest.exercises.length)} />
+                    <MiniStat
+                      label={t('volume')}
+                      value={`${fmtCompact(workoutVolume(latest))} ${t('kg_unit')}`}
+                    />
                   </div>
                   <div className="mt-4 flex gap-2">
                     <Button asChild variant="secondary" className="flex-1">
-                      <Link to={`/workouts/${latest.id}`}>View workout</Link>
+                      <Link to={`/workouts/${latest.id}`}>{t('view_workout')}</Link>
                     </Button>
                     <Button asChild variant="energy" className="flex-1">
                       <Link to="/workouts/active">
-                        <Play /> Start workout
+                        <Play /> {t('start_workout')}
                       </Link>
                     </Button>
                   </div>
                 </div>
               ) : (
                 <div className="py-4 text-center">
-                  <p className="text-sm text-muted-foreground">No workouts yet.</p>
+                  <p className="text-sm text-muted-foreground">{t('no_workouts_yet')}</p>
                   <Button asChild variant="energy" className="mt-3">
                     <Link to="/workouts/active">
-                      <Play /> Start your first workout
+                      <Play /> {t('start_first_workout')}
                     </Link>
                   </Button>
                 </div>
@@ -199,10 +205,10 @@ export function DashboardPage() {
           {/* Weekly activity */}
           <Card className="flex-1">
             <CardHeader className="flex-row items-center justify-between">
-              <CardTitle className="text-base">Weekly activity</CardTitle>
+              <CardTitle className="text-base">{t('weekly_activity')}</CardTitle>
               <Button asChild variant="ghost" size="sm">
                 <Link to="/progress">
-                  <TrendingUp /> Details
+                  <TrendingUp /> {t('details_link')}
                 </Link>
               </Button>
             </CardHeader>
@@ -216,13 +222,13 @@ export function DashboardPage() {
       {/* Quick actions */}
       <section className="mt-4 sm:mt-6">
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          Quick actions
+          {t('quick_actions')}
         </h2>
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          <QuickAction to="/workouts/active" icon={Dumbbell} label="Start workout" hint="Log a training session" accent="energy" />
-          <QuickAction to="/nutrition" icon={Apple} label="Log food" hint="Add a meal or snack" accent="nutri" />
-          <QuickAction to="/timer" icon={Timer} label="Start timer" hint="HIIT & interval sessions" accent="ignite" />
-          <QuickAction to="/progress" icon={TrendingUp} label="View progress" hint="Stats and personal bests" accent="neutral" />
+          <QuickAction to="/workouts/active" icon={Dumbbell} label={t('qa_start_workout')} hint={t('qa_start_workout_hint')} accent="energy" />
+          <QuickAction to="/nutrition" icon={Apple} label={t('qa_log_food')} hint={t('qa_log_food_hint')} accent="nutri" />
+          <QuickAction to="/timer" icon={Timer} label={t('qa_start_timer')} hint={t('qa_start_timer_hint')} accent="ignite" />
+          <QuickAction to="/progress" icon={TrendingUp} label={t('qa_view_progress')} hint={t('qa_view_progress_hint')} accent="neutral" />
         </div>
       </section>
     </div>
@@ -246,7 +252,7 @@ function MacroBar({
       <div className="mb-1.5 flex items-baseline justify-between text-sm">
         <span className="font-medium">{label}</span>
         <span className="text-xs text-muted-foreground tabular">
-          <span className="font-semibold text-foreground">{fmt(value)}</span> / {goal} g
+          <span className="font-semibold text-foreground">{fmt(value)}</span> / {goal} {t('g_unit')}
         </span>
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">

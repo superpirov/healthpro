@@ -15,6 +15,7 @@ import { Segmented } from '@/components/ui/segmented'
 import { FOODS, FOOD_CATEGORIES } from '@/data/foods'
 import { useAppStore } from '@/store/appStore'
 import { fmt } from '@/lib/utils'
+import { t, loc, locFood } from '@/lib/i18n'
 import type { FoodCategory, FoodItem } from '@/types'
 
 type Filter = 'All' | FoodCategory
@@ -74,23 +75,25 @@ export function FoodPicker({
     let base = allFoods
     if (tab === 'recent') {
       const set = new Set(recentIds)
-      base = allFoods.filter((f) => set.has(f.id))
-    } else if (tab === 'favorites') {
-      base = allFoods.filter((f) => favoriteFoodIds.includes(f.id))
+      base = base.filter((f) => set.has(f.id))
+    }
+    if (tab === 'favorites') {
+      const set = new Set(favoriteFoodIds)
+      base = base.filter((f) => set.has(f.id))
     }
     return base.filter(
       (f) =>
         (filter === 'All' || f.category === filter) &&
-        (!needle || f.name.toLowerCase().includes(needle) || f.category.toLowerCase().includes(needle))
+        (!needle || f.name.toLowerCase().includes(needle)),
     )
-  }, [allFoods, tab, filter, q, recentIds, favoriteFoodIds])
+  }, [q, filter, tab, allFoods, recentIds, favoriteFoodIds])
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[88dvh] max-w-lg">
+      <DialogContent className="max-h-[85dvh] max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add food</DialogTitle>
-          <DialogDescription>Search {FOODS.length} foods or create your own.</DialogDescription>
+          <DialogTitle>{t('fp_title')}</DialogTitle>
+          <DialogDescription>{t('fp_desc', { n: FOODS.length })}</DialogDescription>
         </DialogHeader>
 
         <Segmented
@@ -98,9 +101,9 @@ export function FoodPicker({
           value={tab}
           onChange={setTab}
           options={[
-            { value: 'search', label: 'Search' },
-            { value: 'recent', label: <span className="flex items-center gap-1"><History className="size-3" /> Recent</span> },
-            { value: 'favorites', label: <span className="flex items-center gap-1"><Star className="size-3" /> Favorites</span> },
+            { value: 'search', label: t('tab_search') },
+            { value: 'recent', label: <span className="flex items-center gap-1"><History className="size-3" /> {t('tab_recent')}</span> },
+            { value: 'favorites', label: <span className="flex items-center gap-1"><Star className="size-3" /> {t('tab_favorites')}</span> },
           ]}
           className="w-full justify-between"
         />
@@ -109,7 +112,7 @@ export function FoodPicker({
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search foods…"
+            placeholder={t('fp_search_placeholder')}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             autoFocus
@@ -122,8 +125,8 @@ export function FoodPicker({
             value={filter}
             onChange={setFilter}
             options={[
-              { value: 'All' as Filter, label: 'All' },
-              ...FOOD_CATEGORIES.map((c) => ({ value: c as Filter, label: c })),
+              { value: 'All' as Filter, label: t('all_filter') },
+              ...FOOD_CATEGORIES.map((c) => ({ value: c as Filter, label: loc('cat', c) })),
             ]}
           />
         </div>
@@ -133,10 +136,10 @@ export function FoodPicker({
             <div className="py-8 text-center">
               <p className="text-sm text-muted-foreground">
                 {tab === 'favorites'
-                  ? 'No favorites yet — tap the star on any food.'
+                  ? t('fp_no_favorites')
                   : tab === 'recent'
-                    ? 'Nothing logged in the last 14 days.'
-                    : `Nothing found for “${q}”.`}
+                    ? t('fp_no_recent')
+                    : t('fp_search_not_found', { q })}
               </p>
             </div>
           ) : (
@@ -152,21 +155,21 @@ export function FoodPicker({
                     >
                       <div className="min-w-0">
                         <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
-                          {f.name}
-                          {f.custom && <Badge variant="nutri">Custom</Badge>}
+                          {locFood(f.id, f.name)}
+                          {f.custom && <Badge variant="nutri">{t('custom_badge')}</Badge>}
                         </p>
                         <p className="mt-0.5 text-xs text-muted-foreground tabular">
-                          {fmt(f.calories)} kcal · P {f.protein} · F {f.fat} · C {f.carbs}
-                          <span className="ml-1">/ 100 g</span>
+                          {fmt(f.calories)} {t('kcal_unit')} · Б {f.protein} · Ж {f.fat} · У {f.carbs}
+                          <span className="ml-1">/ 100 {t('g_unit')}</span>
                         </p>
                       </div>
                       <Badge variant="secondary" className="shrink-0">
-                        {f.category}
+                        {loc('cat', f.category)}
                       </Badge>
                     </button>
                     <button
                       type="button"
-                      aria-label={fav ? `Remove ${f.name} from favorites` : `Add ${f.name} to favorites`}
+                      aria-label={fav ? t('remove_food', { name: f.name }) : `☆ ${f.name}`}
                       onClick={() => toggleFavoriteFood(f.id)}
                       className="rounded-lg p-2 text-muted-foreground/60 transition-colors hover:bg-secondary hover:text-foreground"
                     >
@@ -185,10 +188,10 @@ export function FoodPicker({
           onClick={() => {
             onClose()
             // let the picker dialog close before opening the create one
-            setTimeout(() => onCreateCustom(q.trim()), 180)
+            setTimeout(() => onCreateCustom(q.trim() || t('create_custom_default')), 180)
           }}
         >
-          <Plus /> Create “{q.trim() || 'custom food'}”
+          <Plus /> {t('create_named', { q: q.trim() || t('create_custom_default') })}
         </Button>
       </DialogContent>
     </Dialog>

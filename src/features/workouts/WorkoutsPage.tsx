@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { format, parseISO, startOfWeek, subDays } from 'date-fns'
+import { parseISO, startOfWeek, subDays } from 'date-fns'
 import {
   BookOpen,
   CalendarDays,
@@ -23,6 +23,7 @@ import { useAppStore } from '@/store/appStore'
 import { useDailyActivity } from '@/hooks/useDerived'
 import { workoutVolume } from '@/lib/calculations'
 import { fmt, fmtCompact, fmtDuration } from '@/lib/utils'
+import { t, fdate, locWorkoutName } from '@/lib/i18n'
 import type { Workout } from '@/types'
 
 type Period = '7' | '30' | '90'
@@ -32,10 +33,17 @@ export function relativeDay(dateISO: string): string {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const diff = Math.round((today.getTime() - d.getTime()) / 86400_000)
-  if (diff === 0) return 'Today'
-  if (diff === 1) return 'Yesterday'
-  if (diff < 7) return `${diff} days ago`
-  return format(d, 'MMM d')
+  if (diff === 0) return t('today_label')
+  if (diff === 1) return t('yesterday_label')
+  if (diff < 7) return t('days_ago_label', { n: diff })
+  return fdate(d, 'd MMM')
+}
+
+/** Локализация английского типа тренировки из данных/шаблонов */
+export function locType(type: string): string {
+  const key = `type_${type.replace(/\s+/g, '').toLowerCase()}`
+  const s = t(key)
+  return s === key ? type : s
 }
 
 export function WorkoutsPage() {
@@ -45,7 +53,7 @@ export function WorkoutsPage() {
   const days = Number(period)
 
   const inRange = useMemo(() => {
-    const from = format(subDays(new Date(), days - 1), 'yyyy-MM-dd')
+    const from = fdate(subDays(new Date(), days - 1), 'yyyy-MM-dd')
     return workouts.filter((w) => w.date >= from)
   }, [workouts, days])
 
@@ -64,18 +72,18 @@ export function WorkoutsPage() {
   return (
     <div className="animate-page-in">
       <PageHeader
-        title="Workouts"
-        description="Your strength training diary and history."
+        title={t('workouts_title')}
+        description={t('workouts_desc')}
         actions={
           <>
             <Button asChild variant="outline" size="icon" className="hidden sm:inline-flex">
-              <Link to="/workouts/exercises" aria-label="Exercise library">
+              <Link to="/workouts/exercises" aria-label={t('exercise_library')}>
                 <BookOpen />
               </Link>
             </Button>
             <Button asChild variant="energy">
               <Link to="/workouts/active">
-                <Play /> New workout
+                <Play /> {t('new_workout')}
               </Link>
             </Button>
           </>
@@ -88,54 +96,54 @@ export function WorkoutsPage() {
           value={period}
           onChange={setPeriod}
           options={[
-            { value: '7', label: '7 days' },
-            { value: '30', label: '30 days' },
-            { value: '90', label: '90 days' },
+            { value: '7', label: t('days_7') },
+            { value: '30', label: t('days_30') },
+            { value: '90', label: t('days_90') },
           ]}
         />
       </div>
 
       {/* Stats */}
       <section className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-        <StatCard label="This week" accent="energy" icon={Dumbbell} value={weekCount} sub="workouts" />
+        <StatCard label={t('stat_this_week')} accent="energy" icon={Dumbbell} value={weekCount} sub={t('stat_workouts_sub')} />
         <StatCard
-          label="Volume"
+          label={t('stat_volume')}
           accent="energy"
           icon={Flame}
           value={`${fmtCompact(totalVolume)}`}
-          sub={`kg over ${days} days`}
+          sub={t('kg_over_days', { days })}
         />
         <StatCard
-          label="Total time"
+          label={t('stat_total_time')}
           accent="ignite"
           icon={Clock}
           value={fmtDuration(totalMinutes)}
-          sub={`${inRange.length} sessions`}
+          sub={t('sessions_sub', { n: inRange.length })}
         />
         {last ? (
           <Card className="col-span-2 p-4 sm:col-span-1 sm:p-5 xl:col-span-1">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Last session
+              {t('last_session')}
             </p>
             <Link to={`/workouts/${last.id}`} className="group mt-2 block">
               <p className="truncate text-lg font-bold tracking-tight transition-colors group-hover:text-primary">
-                {last.name}
+                {locWorkoutName(last.name)}
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 {relativeDay(last.date)} · {fmtDuration(last.durationMin)} ·{' '}
-                {fmtCompact(workoutVolume(last))} kg
+                {fmtCompact(workoutVolume(last))} {t('kg_unit')}
               </p>
             </Link>
           </Card>
         ) : (
-          <StatCard label="Last session" value="—" sub="no data" />
+          <StatCard label={t('last_session')} value="—" sub={t('no_data')} />
         )}
       </section>
 
       {/* Activity chart */}
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle className="text-base">Training volume</CardTitle>
+          <CardTitle className="text-base">{t('training_volume')}</CardTitle>
         </CardHeader>
         <CardContent>
           <VolumeChart data={chartData} height={210} />
@@ -146,23 +154,23 @@ export function WorkoutsPage() {
       <section className="mt-6">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            History
+            {t('history')}
           </h2>
           <Button asChild variant="ghost" size="sm">
             <Link to="/workouts/exercises">
-              <BookOpen /> Exercise library
+              <BookOpen /> {t('exercise_library')}
             </Link>
           </Button>
         </div>
         {history.length === 0 ? (
           <EmptyState
             icon={Dumbbell}
-            title="No workouts yet"
-            description="Start your first session and it will appear here with full details."
+            title={t('no_workouts_title')}
+            description={t('no_workouts_desc')}
             action={
               <Button asChild variant="energy">
                 <Link to="/workouts/active">
-                  <Plus /> New workout
+                  <Plus /> {t('new_workout')}
                 </Link>
               </Button>
             }
@@ -193,7 +201,7 @@ export function WorkoutRow({ workout: w, onClick }: { workout: Workout; onClick:
         <div className="flex items-center gap-2">
           <p className="truncate font-semibold">{w.name}</p>
           <Badge variant="secondary" className="hidden shrink-0 sm:inline-flex">
-            {w.type}
+            {locType(w.type)}
           </Badge>
         </div>
         <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground tabular">
@@ -204,10 +212,10 @@ export function WorkoutRow({ workout: w, onClick }: { workout: Workout; onClick:
             <Clock className="size-3.5" /> {fmtDuration(w.durationMin)}
           </span>
           <span className="inline-flex items-center gap-1">
-            <Layers className="size-3.5" /> {w.exercises.length} exercises
+            <Layers className="size-3.5" /> {t('exercises_n', { n: w.exercises.length })}
           </span>
           <span className="hidden items-center gap-1 sm:inline-flex">
-            <Flame className="size-3.5" /> {fmt(workoutVolume(w))} kg
+            <Flame className="size-3.5" /> {fmt(workoutVolume(w))} {t('kg_unit')}
           </span>
         </p>
       </div>

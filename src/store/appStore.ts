@@ -150,7 +150,9 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'pulse-app-v1',
-      version: 1,
+      version: 2,
+      // v2: demo data is now fully Russian — old English demo seeds are reseeded
+      migrate: (state, from) => (from < 2 ? seedState() : state),
     }
   )
 )

@@ -20,6 +20,7 @@ import {
 import { FOOD_CATEGORIES } from '@/data/foods'
 import { useAppStore } from '@/store/appStore'
 import { toast } from '@/components/ui/toast'
+import { t, loc } from '@/lib/i18n'
 import type { FoodCategory, FoodItem } from '@/types'
 
 interface Draft {
@@ -86,7 +87,7 @@ export function CreateFoodDialog({
       custom: true,
     }
     addCustomFood(food)
-    toast.success('Food created', `${food.name} added to your library`)
+    toast.success(t('toast_food_created'), t('toast_food_created_desc', { name: food.name }))
     onOpenChange(false)
     onCreated(food)
   }
@@ -95,16 +96,16 @@ export function CreateFoodDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Create custom food</DialogTitle>
-          <DialogDescription>Nutrition values per 100 g.</DialogDescription>
+          <DialogTitle>{t('cf_title')}</DialogTitle>
+          <DialogDescription>{t('cf_desc')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="cf-name">Name</Label>
+            <Label htmlFor="cf-name">{t('cf_name')}</Label>
             <Input
               id="cf-name"
-              placeholder="e.g. Protein Pancakes"
+              placeholder={t('cf_name_placeholder')}
               value={draft.name}
               onChange={(e) => set({ name: e.target.value })}
               autoFocus
@@ -112,7 +113,7 @@ export function CreateFoodDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label>Category</Label>
+            <Label>{t('cf_category')}</Label>
             <Select
               value={draft.category}
               onValueChange={(v) => set({ category: v as FoodCategory })}
@@ -123,7 +124,7 @@ export function CreateFoodDialog({
               <SelectContent>
                 {FOOD_CATEGORIES.map((c) => (
                   <SelectItem key={c} value={c}>
-                    {c}
+                    {loc('cat', c)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -132,24 +133,24 @@ export function CreateFoodDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="cf-kcal">Calories</Label>
+              <Label htmlFor="cf-kcal">{t('cf_calories')}</Label>
               <Input
                 id="cf-kcal"
                 type="number"
                 min={0}
                 inputMode="numeric"
-                placeholder={est > 0 ? String(est) : 'kcal'}
+                placeholder={est > 0 ? String(est) : t('kcal_unit')}
                 value={draft.calories}
                 onChange={(e) => set({ calories: e.target.value })}
               />
               {est > 0 && kcalManual === 0 && (
                 <p className="text-[11px] text-muted-foreground tabular">
-                  ≈ {est} kcal from macros
+                  {t('cf_from_macros', { est })}
                 </p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="cf-protein">Protein, g</Label>
+              <Label htmlFor="cf-protein">{t('cf_protein')}</Label>
               <Input
                 id="cf-protein"
                 type="number"
@@ -161,7 +162,7 @@ export function CreateFoodDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="cf-fat">Fat, g</Label>
+              <Label htmlFor="cf-fat">{t('cf_fat')}</Label>
               <Input
                 id="cf-fat"
                 type="number"
@@ -173,7 +174,7 @@ export function CreateFoodDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="cf-carbs">Carbs, g</Label>
+              <Label htmlFor="cf-carbs">{t('cf_carbs')}</Label>
               <Input
                 id="cf-carbs"
                 type="number"
@@ -189,10 +190,10 @@ export function CreateFoodDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button variant="nutri" onClick={save} disabled={!valid}>
-            Create food
+            {t('cf_create')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   Check,
@@ -41,7 +41,7 @@ import { beep } from '@/hooks/useIntervalTimer'
 import { todayISO } from '@/data/demoData'
 import { fmt, fmtClock } from '@/lib/utils'
 import { t, fdate, loc, locExercise } from '@/lib/i18n'
-import type { WorkoutExercise, WorkoutSet, WorkoutType } from '@/types'
+import type { PlanDay, WorkoutExercise, WorkoutSet, WorkoutType } from '@/types'
 
 const WORKOUT_TYPES: WorkoutType[] = [
   'Strength', 'Hypertrophy', 'Push', 'Pull', 'Legs', 'Upper', 'Lower',
@@ -67,6 +67,7 @@ interface RestState {
 
 export function ActiveWorkoutPage() {
   const navigate = useNavigate()
+  const planDay = (useLocation().state as { planDay?: PlanDay } | null)?.planDay
   const addWorkout = useAppStore((s) => s.addWorkout)
   const allExercises = useExercises()
 
@@ -74,8 +75,8 @@ export function ActiveWorkoutPage() {
   const [phase, setPhase] = useState<'setup' | 'live'>('setup')
 
   // setup fields
-  const [name, setName] = useState('')
-  const [type, setType] = useState<WorkoutType>('Strength')
+  const [name, setName] = useState(planDay?.name ?? '')
+  const [type, setType] = useState<WorkoutType>(planDay?.type ?? 'Strength')
   const [date, setDate] = useState(todayISO())
   const [errors, setErrors] = useState<{ name?: string }>({})
 
@@ -136,8 +137,8 @@ export function ActiveWorkoutPage() {
     setErrors({})
     setPhase('live')
     setStartedAt(Date.now())
-    // sensible starter template based on type
-    setExercises(starterFor(type))
+    // sensible starter template based on type, or the day chosen in the PRO plan
+    setExercises(planDay ? planDayToDraft(planDay) : starterFor(type))
   }
 
   /* ── exercise ops ── */
@@ -278,7 +279,7 @@ export function ActiveWorkoutPage() {
               </div>
             </div>
             <div className="rounded-xl border border-line bg-surface-2/50 p-3.5 text-xs leading-relaxed text-muted-foreground">
-              {t('setup_note', { type: locType(type) })}
+              {planDay ? t('setup_note_plan') : t('setup_note', { type: locType(type) })}
             </div>
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={() => navigate(-1)}>
@@ -557,6 +558,27 @@ export function ActiveWorkoutPage() {
 }
 
 /* helpers */
+
+function planDayToDraft(day: PlanDay): DraftExercise[] {
+  return day.exercises.flatMap<DraftExercise>((pe) => {
+    const def = EXERCISES.find((e) => e.id === pe.exerciseId)
+    if (!def) return []
+    return [
+      {
+        id: nid('we'),
+        exerciseId: def.id,
+        name: locExercise(def.id, def.name),
+        muscleGroup: def.muscleGroup,
+        sets: Array.from({ length: pe.sets }, () => ({
+          id: nid('ws'),
+          weight: defaultWeightFor(def.muscleGroup),
+          reps: pe.reps,
+          done: false,
+        })),
+      },
+    ]
+  })
+}
 
 function defaultWeightFor(group: string): number {
   switch (group) {

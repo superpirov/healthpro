@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Activity, Apple, LayoutDashboard, Settings, Timer, TrendingUp, Zap } from 'lucide-react'
+import { Activity, Apple, LayoutDashboard, Settings, Target, Timer, TrendingUp, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { t } from '@/lib/i18n'
 import { useAppStore } from '@/store/appStore'
@@ -9,6 +9,7 @@ import { toast } from '@/components/ui/toast'
 export const NAV_ITEMS = [
   { to: '/', label: t('dashboard'), icon: LayoutDashboard, end: true },
   { to: '/workouts', label: t('workouts'), icon: Activity, end: false },
+  { to: '/plan', label: t('plan_nav'), icon: Target, end: false },
   { to: '/nutrition', label: t('nutrition'), icon: Apple, end: false },
   { to: '/timer', label: t('timer'), icon: Timer, end: false },
   { to: '/progress', label: t('progress'), icon: TrendingUp, end: false },

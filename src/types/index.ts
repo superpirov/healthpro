@@ -158,3 +158,41 @@ export interface PersonalRecord {
   reps: number
   date: string
 }
+
+/* ─── Goal & plan (PRO) ───────────────────────────────────── */
+
+export type FitnessGoalType = 'lose' | 'maintain' | 'gain'
+
+export interface BodyMetrics {
+  heightCm: number
+  weightKg: number
+}
+
+export interface FitnessGoal {
+  type: FitnessGoalType
+  /** Target body weight in kg — used by lose/gain goals */
+  targetWeightKg?: number
+}
+
+export interface PlanExercise {
+  exerciseId: string
+  sets: number
+  /** Repetitions, or seconds when mode === 'seconds' */
+  reps: number
+  mode?: 'reps' | 'seconds'
+  restSec: number
+}
+
+export interface PlanDay {
+  id: string
+  name: string
+  type: WorkoutType
+  exercises: PlanExercise[]
+}
+
+export interface WorkoutPlan {
+  goal: FitnessGoalType
+  daysPerWeek: number
+  days: PlanDay[]
+  progression: string
+}

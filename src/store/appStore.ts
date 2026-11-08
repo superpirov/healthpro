@@ -1,7 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type {
+  BodyMetrics,
   Exercise,
+  FitnessGoal,
   FoodItem,
   LoggedFood,
   MealType,
@@ -26,6 +28,10 @@ interface AppState {
   favoriteFoodIds: string[]
   records: PersonalRecord[]
   theme: 'dark' | 'light'
+  /** PRO-подписка: локальный демо-флаг, реальная оплата не подключена */
+  pro: boolean
+  body: BodyMetrics | null
+  goal: FitnessGoal | null
 
   /* workouts */
   addWorkout: (w: Workout) => void
@@ -44,6 +50,9 @@ interface AppState {
 
   /* misc */
   setTheme: (t: 'dark' | 'light') => void
+  setPro: (pro: boolean) => void
+  setBody: (body: BodyMetrics) => void
+  setGoal: (goal: FitnessGoal | null) => void
   resetDemoData: () => void
 }
 
@@ -57,6 +66,9 @@ function seedState() {
     favoriteFoodIds: ['chicken-breast', 'rice-white', 'eggs', 'banana', 'oatmeal', 'greek-yogurt'],
     records: buildDemoRecords(),
     theme: 'dark' as const,
+    pro: false,
+    body: null as BodyMetrics | null,
+    goal: null as FitnessGoal | null,
   }
 }
 
@@ -152,6 +164,12 @@ export const useAppStore = create<AppState>()(
         })),
 
       setTheme: (theme) => set({ theme }),
+
+      setPro: (pro) => set({ pro }),
+
+      setBody: (body) => set({ body }),
+
+      setGoal: (goal) => set({ goal }),
 
       resetDemoData: () => set({ ...seedState() }),
     }),

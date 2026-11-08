@@ -99,7 +99,7 @@ export function ExerciseLibraryPage() {
                   {loc('mg', e.muscleGroup)}
                 </Badge>
               </div>
-              <p className="mt-2 flex-1 text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-2 flex-1 break-words text-xs leading-relaxed text-muted-foreground">
                 {locExerciseDesc(e.id, e.description)}
               </p>
               <p className="mt-3 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/70">

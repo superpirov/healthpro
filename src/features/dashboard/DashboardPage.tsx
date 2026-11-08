@@ -267,11 +267,11 @@ function MacroBar({
 
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-line bg-surface-2/50 px-3 py-2.5">
-      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+    <div className="min-w-0 rounded-xl border border-line bg-surface-2/50 px-2.5 py-2.5 sm:px-3">
+      <p className="text-[10px] font-medium leading-tight text-muted-foreground sm:text-[11px] sm:uppercase sm:tracking-wide">
         {label}
       </p>
-      <p className="mt-0.5 text-lg font-bold tracking-tight tabular">{value}</p>
+      <p className="mt-0.5 whitespace-nowrap text-base font-bold tracking-tight tabular sm:text-lg">{value}</p>
     </div>
   )
 }

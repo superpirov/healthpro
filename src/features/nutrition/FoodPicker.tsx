@@ -97,6 +97,7 @@ export function FoodPicker({
         </DialogHeader>
 
         <Segmented
+          fullWidth
           size="sm"
           value={tab}
           onChange={setTab}
@@ -105,7 +106,6 @@ export function FoodPicker({
             { value: 'recent', label: <span className="flex items-center gap-1"><History className="size-3" /> {t('tab_recent')}</span> },
             { value: 'favorites', label: <span className="flex items-center gap-1"><Star className="size-3" /> {t('tab_favorites')}</span> },
           ]}
-          className="w-full justify-between"
         />
 
         <div className="relative">

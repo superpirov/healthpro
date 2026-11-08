@@ -339,31 +339,33 @@ export function ActiveWorkoutPage() {
             exit={{ opacity: 0, y: -8, height: 0 }}
             className="overflow-hidden"
           >
-            <Card className="mb-4 border-ignite/30 bg-ignite/[0.06] p-4">
-              <div className="flex items-center gap-4">
-                <RingProgress
-                  value={restLeftSec / rest.totalSec}
-                  size={64}
-                  stroke={6}
-                  color="#FFB36B"
-                >
-                  <span className="text-sm font-bold tabular text-ignite">
-                    {fmtClock(restLeftSec)}
-                  </span>
-                </RingProgress>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold">{t('rest')}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t('next_set_in', { s: Math.ceil(restLeftSec) })}
-                  </p>
+            <Card className="mb-4 border-ignite/30 bg-ignite/[0.06] p-3 sm:p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                <div className="flex min-w-0 items-center gap-3 sm:flex-1 sm:gap-4">
+                  <RingProgress
+                    value={restLeftSec / rest.totalSec}
+                    size={56}
+                    stroke={5}
+                    color="#FFB36B"
+                  >
+                    <span className="text-xs font-bold tabular text-ignite sm:text-sm">
+                      {fmtClock(restLeftSec)}
+                    </span>
+                  </RingProgress>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold">{t('rest')}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {t('next_set_in', { s: Math.ceil(restLeftSec) })}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex gap-1.5">
+                <div className="grid shrink-0 grid-cols-3 gap-1.5 sm:flex sm:items-center">
                   {[30, 15].map((s) => (
-                    <Button key={s} size="sm" variant="outline" onClick={() => startRest(s)}>
+                    <Button key={s} size="sm" variant="outline" className="w-full sm:w-auto" onClick={() => startRest(s)}>
                       +{s}{t('sec_unit')}
                     </Button>
                   ))}
-                  <Button size="sm" variant="ghost" onClick={() => setRest(null)}>
+                  <Button size="sm" variant="ghost" className="w-full sm:w-auto" onClick={() => setRest(null)}>
                     <SkipForward /> {t('skip')}
                   </Button>
                 </div>

@@ -1,5 +1,4 @@
-import { Outlet, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { MobileNav } from './MobileNav'
 import { ThemeToggle } from './ThemeToggle'
@@ -9,7 +8,6 @@ import { cn } from '@/lib/utils'
 import { fdate } from '@/lib/i18n'
 
 export function AppLayout() {
-  const { pathname } = useLocation()
   const theme = useAppStore((s) => s.theme)
 
   return (
@@ -28,17 +26,7 @@ export function AppLayout() {
             <p className="mb-4 hidden text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground lg:block">
               {fdate(new Date(), 'EEEE, d MMMM')}
             </p>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={pathname}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.25, ease: [0.21, 0.47, 0.32, 0.98] }}
-              >
-                <Outlet />
-              </motion.div>
-            </AnimatePresence>
+            <Outlet />
           </div>
         </main>
         <MobileNav />

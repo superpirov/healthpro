@@ -189,17 +189,15 @@
   }
 }
 
-/* Page transition */
+/* Page transition — без opacity, чтобы контент не пропадал при подвисшей анимации */
 @keyframes page-in {
   from {
-    opacity: 0;
     transform: translateY(8px);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
 .animate-page-in {
-  animation: page-in 0.35s cubic-bezier(0.21, 0.47, 0.32, 0.98) both;
+  animation: page-in 0.35s cubic-bezier(0.21, 0.47, 0.32, 0.98);
 }

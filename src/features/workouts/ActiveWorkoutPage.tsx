@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
+  BookOpen,
   Check,
   ChevronDown,
   Plus,
@@ -35,6 +36,7 @@ import {
 } from '@/components/ui/select'
 import { ExercisePicker } from './ExercisePicker'
 import { EXERCISES } from '@/data/exercises'
+import { GUIDES } from '@/data/guides'
 import { useExercises } from '@/hooks/useExercises'
 import { useAppStore } from '@/store/appStore'
 import { beep } from '@/hooks/useIntervalTimer'
@@ -388,28 +390,50 @@ export function ActiveWorkoutPage() {
           const exDone = ex.sets.filter((s) => s.done).length
           return (
             <Card key={ex.id} className="overflow-hidden">
-              <button
-                type="button"
-                className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-white/[0.02]"
-                onClick={() => setExpanded((p) => ({ ...p, [ex.id]: !open }))}
-              >
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-energy/12 text-sm font-bold text-energy">
-                  {idx + 1}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold">{ex.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t('muscle_group_of', {
-                      group: loc('mg', ex.muscleGroup),
-                      done: exDone,
-                      total: ex.sets.length,
-                    })}
-                  </p>
-                </div>
-                <ChevronDown
-                  className={`size-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-                />
-              </button>
+              <div className="flex items-center gap-1 p-4">
+                <button
+                  type="button"
+                  className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                  onClick={() => setExpanded((p) => ({ ...p, [ex.id]: !open }))}
+                  aria-expanded={open}
+                >
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-energy/12 text-sm font-bold text-energy">
+                    {idx + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold">{ex.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t('muscle_group_of', {
+                        group: loc('mg', ex.muscleGroup),
+                        done: exDone,
+                        total: ex.sets.length,
+                      })}
+                    </p>
+                  </div>
+                </button>
+                {GUIDES[ex.exerciseId] && (
+                  <Link
+                    to={`/guides/${ex.exerciseId}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`${t('guide_open')}: ${ex.name}`}
+                    title={t('guide_open')}
+                    className="flex size-9 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary hover:text-energy"
+                  >
+                    <BookOpen className="size-4" />
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setExpanded((p) => ({ ...p, [ex.id]: !open }))}
+                  aria-label={open ? t('guide_collapse') : t('guide_expand')}
+                  className="flex size-9 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-secondary"
+                >
+                  <ChevronDown
+                    className={`size-4 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+                  />
+                </button>
+              </div>
               <AnimatePresence initial={false}>
                 {open && (
                   <motion.div

@@ -449,6 +449,28 @@ const ru: Record<string, string> = {
   demo_hiit_circuit: 'ВИИТ-круговая',
   demo_core_cardio: 'Кор и кардио',
 
+  // ── Инструкции по упражнениям ─────────────────────────────
+  guides: 'Инструкции',
+  guides_short: 'Техника',
+  guides_title: 'Инструкции',
+  guides_desc: 'Техника выполнения упражнений — пошагово и с картинками.',
+  guides_search: 'Найти упражнение',
+  guides_empty: 'Ничего не найдено',
+  guides_empty_desc: 'Попробуйте другое название или группу мышц.',
+  guides_back: 'Все инструкции',
+  guide_steps: 'Как выполнять',
+  guide_frame_start: 'Исходное положение',
+  guide_frame_end: 'Рабочая фаза',
+  guide_muscle: 'Группа мышц',
+  guide_equipment: 'Инвентарь',
+  guide_not_found: 'Инструкция не найдена',
+  guide_not_found_desc: 'Для этого упражнения пока нет пошаговой инструкции.',
+  guide_open: 'Как выполнять',
+  guide_credit: 'Фото: Taco Fleur, Wikimedia Commons · CC BY-SA 4.0',
+  guide_source_note: 'Иллюстрации: free-exercise-db (Unlicense). Бёрпи — Taco Fleur, CC BY-SA 4.0.',
+  guide_expand: 'Показать подходы',
+  guide_collapse: 'Скрыть подходы',
+
   // ── Русские названия упражнений (по id из библиотеки) ─────
   'ex_bench-press': 'Жим штанги лёжа',
   'ex_incline-db-press': 'Жим гантелей на наклонной скамье',

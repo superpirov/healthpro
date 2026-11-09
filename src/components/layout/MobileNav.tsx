@@ -6,7 +6,7 @@ export function MobileNav() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/90 backdrop-blur-xl lg:hidden">
       <div className="mx-auto flex h-[64px] max-w-lg items-stretch justify-around px-1 pb-[env(safe-area-inset-bottom)]">
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+        {NAV_ITEMS.map(({ to, label, short, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
@@ -28,7 +28,7 @@ export function MobileNav() {
                 >
                   <Icon className="size-[19px]" strokeWidth={isActive ? 2.4 : 2} />
                 </span>
-                {label}
+                {short ?? label}
               </>
             )}
           </NavLink>

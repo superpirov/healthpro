@@ -1,19 +1,30 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Activity, Apple, LayoutDashboard, Settings, Target, Timer, TrendingUp, Zap } from 'lucide-react'
+import { Activity, Apple, BookOpen, LayoutDashboard, Settings, Target, Timer, TrendingUp, Zap } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { t } from '@/lib/i18n'
 import { useAppStore } from '@/store/appStore'
 import { ThemeToggle } from './ThemeToggle'
 import { toast } from '@/components/ui/toast'
 
-export const NAV_ITEMS = [
+interface NavItem {
+  to: string
+  label: string
+  /** Короткая подпись для узкого мобильного меню */
+  short?: string
+  icon: LucideIcon
+  end: boolean
+}
+
+export const NAV_ITEMS: NavItem[] = [
   { to: '/', label: t('dashboard'), icon: LayoutDashboard, end: true },
   { to: '/workouts', label: t('workouts'), icon: Activity, end: false },
+  { to: '/guides', label: t('guides'), short: t('guides_short'), icon: BookOpen, end: false },
   { to: '/plan', label: t('plan_nav'), icon: Target, end: false },
   { to: '/nutrition', label: t('nutrition'), icon: Apple, end: false },
   { to: '/timer', label: t('timer'), icon: Timer, end: false },
   { to: '/progress', label: t('progress'), icon: TrendingUp, end: false },
-] as const
+]
 
 export function Sidebar() {
   const name = useAppStore((s) => s.user.name)
